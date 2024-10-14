@@ -1,0 +1,59 @@
+[actions]
+    └── register.ts
+[app]
+    ├── [about]
+        └── page.tsx
+    ├── [api]
+        ├── [auth]
+        ├── [parties]
+            └── route.ts
+        ├── parties.ts
+        └── [user]
+            └── [[id]]
+                └── route.ts
+    ├── [components]
+        └── Navbar.tsx
+    ├── [contact]
+        └── page.tsx
+    ├── [create-event]
+        └── page.tsx
+    ├── [dashboard]
+        └── page.tsx
+    ├── favicon.ico
+    ├── [fonts]
+        ├── GeistMonoVF.woff
+        └── GeistVF.woff
+    ├── globals.css
+    ├── layout.tsx
+    ├── [login]
+        └── page.tsx
+    ├── [models]
+        ├── ActivityLog.ts
+        ├── Guest.ts
+        ├── Party.ts
+        └── User.ts
+    ├── page.tsx
+    ├── provider.tsx
+    └── [register]
+        └── page.tsx
+[components]
+    └── [ui]
+        ├── button.tsx
+        ├── card.tsx
+        ├── input.tsx
+        ├── sheet.tsx
+        └── textarea.tsx
+components.json
+[lib]
+    ├── auth.ts
+    ├── db.ts
+    └── utils.ts
+package-lock.json
+package.json
+postcss.config.mjs
+[public]
+    └── [images]
+tailwind.config.ts
+tsconfig.json
+[types]
+next-auth.d.ts
