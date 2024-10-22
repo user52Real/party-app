@@ -5,6 +5,7 @@ import Party, { PartyDocument } from "@/models/Party";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Guest } from '@/types/types';
 
 
 export async function POST(req: Request) {
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -87,7 +88,12 @@ export async function GET() {
       id: party._id.toString(),
       name: party.name,
       date: party.date.toISOString(),
-      guests: party.guests,
+      guests: party.guests.map((guest: Guest) => ({
+        id: guest._id.toString(),
+        name: guest.name,
+        email: guest.email,
+        status: guest.status
+      })),
       budget: party.budget,
       location: party.location || ""
     }));

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ReactNode } from "react";
 
 export interface User {
@@ -62,4 +63,11 @@ export interface AuthLinkProps {
   href: string;
   className?: string;
   children: ReactNode;
+}
+
+export interface Guest {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  status: string;
 }
