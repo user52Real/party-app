@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import InvitationForm from '@/components/InvitationForm';
 
 interface Party {
@@ -38,6 +37,7 @@ export default function InvitePage() {
         setEvent(data);
       } catch (error) {
         console.error('Error fetching event details:', error);
+        setError('Failed to fetch party details');
       }
     };
 

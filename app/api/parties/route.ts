@@ -5,8 +5,6 @@ import Party, { PartyDocument } from "@/models/Party";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { validateCSRFToken } from "@/lib/csrf";
-
 
 
 export async function POST(req: Request) {

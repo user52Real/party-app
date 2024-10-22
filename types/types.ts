@@ -1,4 +1,4 @@
-// File: types/types.ts
+import { ReactNode } from "react";
 
 export interface User {
     id: string;
@@ -9,9 +9,9 @@ export interface User {
     totalParties?: number;
     totalGuests?: number;
     lastParty?: string;
-  }
+}
   
-  export interface Party {
+export interface Party {
     id: string;
     name: string;
     date: string;
@@ -19,16 +19,16 @@ export interface User {
     budget: number;
     location?: string;
     userId: string;
-  }
+}
   
-  export interface UserProfile {
+export interface UserProfile {
     name: string;
     email: string;
     phone: string;
     image: string;
-  }
+}
   
-  export interface UserDashboardData {
+export interface UserDashboardData {
     totalParties: number;
     partiesIncrease: number;
     upcomingEvents: number;
@@ -43,4 +43,23 @@ export interface User {
       location: string;
       guests: number;
     }[];
-  }
+}
+
+export interface FacebookResponse {
+  request?: string;
+  to?: string[];
+  error?: {
+    message: string;
+    type: string;
+    code: number;
+    error_subcode: number;
+    error_user_title: string;
+    error_user_msg: string;
+  };
+}
+
+export interface AuthLinkProps {
+  href: string;
+  className?: string;
+  children: ReactNode;
+}

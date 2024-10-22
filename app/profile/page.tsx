@@ -7,13 +7,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { UserProfile } from "@/types/types";
 
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  image: string;
-}
 
 const fetchUserProfile = async (userId: string) => {
   const response = await fetch(`/api/users/${userId}?profile=true`);
@@ -103,6 +98,7 @@ export default function Profile() {
     if (e.target.files && e.target.files[0]) {
       setNewImage(e.target.files[0]);
       setPreviewUrl(URL.createObjectURL(e.target.files[0]));
+      
     }
   };
   
@@ -134,6 +130,12 @@ export default function Profile() {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setEditedProfile({
+      name: userProfile.name,
+      email: userProfile.email,
+      phone: userProfile.phone || '',
+      image: userProfile.image || ''
+    });
   };
 
   const handleCancel = () => {
@@ -164,8 +166,13 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error('Failed to update user profile');
         }
+
+        const data: Partial<UserProfile> = {
+          ...editedProfile,
+          image: editedProfile.image || undefined
+        };
   
-        const updatedProfile = await response.json();
+        const updatedProfile = await updateUserProfile(session?.user?.id, data);
         setUserProfile(updatedProfile);
         setIsEditing(false);
         setNewImage(null);
@@ -207,7 +214,7 @@ export default function Profile() {
       <main className="flex-grow container mx-auto px-4 py-8 m-10">
         <Card>
           <CardHeader>
-            <CardTitle>Hello, <span>{session?.user?.name} </span></CardTitle>
+            <CardTitle>Hello, <span>{userProfile.name} </span></CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -224,26 +231,26 @@ export default function Profile() {
                 <>
                   <Input
                     name="name"
-                    value={editedProfile.name}
+                    value={editedProfile.name || ''}
                     onChange={handleChange}
                     placeholder="Name"
                   />
                   <Input
                     name="email"
-                    value={editedProfile.email}
+                    value={editedProfile.email || ''}
                     onChange={handleChange}
                     placeholder="Email"
                     type="email"
                   />
                   <Input
                     name="phone"
-                    value={editedProfile.phone}
+                    value={editedProfile.phone || ''}
                     onChange={handleChange}
                     placeholder="Phone"
                   />
                   <Input
                     name="image"
-                    value={editedProfile.image}
+                    value={editedProfile.image || ''}
                     onChange={handleChange}
                     placeholder="Image URL"
                   />

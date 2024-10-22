@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { JSX, SVGProps } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { AuthLinkProps } from "@/types/types";
 
-const AuthLink = ({ href, children, className }: { href: string; children: any; className?: string }) => {
+const AuthLink = ({ href, children, className }: AuthLinkProps) => {
   const { data: session } = useSession();
 
   if (!session) return null;
@@ -21,7 +22,8 @@ const AuthLink = ({ href, children, className }: { href: string; children: any; 
 
 export default function Navbar() {
   const { data: session, status } = useSession();
-  const router = useRouter();
+
+  if (!session) return null;
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -38,7 +40,10 @@ export default function Navbar() {
       </Link>
       <div className="hidden md:flex gap-4 ">
         {status === "authenticated" && navLinks.map((link) => (
-          <AuthLink key={link.href} href={link.href} className="text-lg font-medium hover:underline underline-offset-4">
+          <AuthLink 
+            key={link.href} 
+            href={link.href} 
+            className="text-lg font-medium hover:underline underline-offset-4">
             {link.label}
           </AuthLink>
         ))}

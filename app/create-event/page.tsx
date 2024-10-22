@@ -10,11 +10,11 @@ import { useSession } from "next-auth/react";
 export default function CreateEvent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [guests, setGuests] = useState<number | undefined>(undefined);
-  const [description, setDescription] = useState("");
+  // const [title, setTitle] = useState("");
+  // const [date, setDate] = useState("");
+  // const [location, setLocation] = useState("");
+  // const [guests, setGuests] = useState<number | undefined>(undefined);
+  // const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ [key: string]: string }>({});
   const [eventData, setEventData] = useState({
@@ -76,9 +76,13 @@ export default function CreateEvent() {
       //const eventId = data.id; 
 
       router.push(`/invite/${data.partyId}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError({ general: err.message || "Something went wrong." });
+      if (err instanceof Error) {
+        setError({ general: err.message || "Something went wrong." });
+      } else {
+        setError({ general: "An unexpected error occurred." });
+      }
     } finally {
       setLoading(false);
     }

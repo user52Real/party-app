@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import { FacebookResponse } from '@/types/types';
 
 interface InvitationFormProps {
   eventId: string;
@@ -29,17 +30,17 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ eventId }) => {
         throw new Error('Failed to send invitation');
       }
     } catch (error) {
-      alert('Error sending invitation. Please try again.');
+      alert(`${error} Error sending invitation. Please try again.`);
     }
   };
 
   const handleFacebookInvite = () => {
-    // @ts-ignore
+    // @ts-expect-error
     FB.ui({
       method: 'apprequests',
       message: 'Join my party!',
-    }, (response: any) => {
-      if (response && !response.error) {
+    }, (response: FacebookResponse) => {
+      if (response.request && !response.error) {
         alert('Invitation sent successfully!');
       } else {
         alert('Error sending invitation. Please try again.');
