@@ -70,8 +70,8 @@ export default function Home() {
               
             </div>
           ) : status === "unauthenticated" ? (            
-              <section className="text-center mt-20 ">
-                <img src="/images/logo.png" alt="Logo" className="w-40 h-40 mx-auto mt-10" />
+              <section className="text-center mt-20">
+                <img src="/images/logo.png" alt="Logo" className="w-80 h-80 mx-auto mt-10 mb-10 rounded" />
                 <h2 className="text-3xl font-bold mb-4 text-white">Plan Your Next Event with Ease</h2>
                 <p className="text-xl mb-8 text-white">Join Feest to create and manage your parties effortlessly.</p>
                 <CustomButton href="/register" icon={UserPlus} text="Register" />

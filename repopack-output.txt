@@ -1,0 +1,3218 @@
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Repository structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repopack's
+  configuration.
+- Binary files are not included in this packed representation. Please refer to
+  the Repository Structure section for a complete list of file paths, including
+  binary files.
+
+================================================================
+Repository Structure
+================================================================
+
+actions/
+  register.ts
+app/
+  about/
+    page.tsx
+  api/
+    auth/
+      [...nextauth]/
+        route.ts
+    parties/
+      [id]/
+        route.ts
+      route.ts
+    users/
+      [id]/
+        route.ts
+      stats/
+        route.ts
+  create-event/
+    page.tsx
+  dashboard/
+    page.tsx
+  invite/
+    [eventId]/
+      page.tsx
+    page.tsx
+  login/
+    page.tsx
+  profile/
+    page.tsx
+  register/
+    page.tsx
+  globals.css
+  layout.tsx
+  page.tsx
+  provider.tsx
+components/
+  ui/
+    button.tsx
+    card.tsx
+    input.tsx
+    sheet.tsx
+    textarea.tsx
+  ClientScript.tsx
+  InvitationForm.tsx
+  Navbar.tsx
+lib/
+  auth.ts
+  csrf.ts
+  db.ts
+  middleware.ts
+  utils.ts
+models/
+  ActivityLog.ts
+  Guest.ts
+  Party.ts
+  User.ts
+types/
+  next-auth.d.ts
+  types.ts
+.eslintrc.json
+.gitignore
+components.json
+next.config.mjs
+package.json
+postcss.config.mjs
+README.md
+tailwind.config.ts
+tsconfig.json
+
+================================================================
+Repository Files
+================================================================
+
+================
+File: actions/register.ts
+================
+"use server"
+import { connectDB } from "@/lib/db";
+import User from "../models/User";
+import bcrypt from "bcryptjs";
+
+export const register = async (values: any) => {
+    const { email, password, name } = values;
+    try {
+        await connectDB();
+        const userFound = await User.findOne({ email });
+        if(userFound){
+            return {
+                error: 'Email already exists!'
+            }
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({
+          name,
+          email,
+          password: hashedPassword,
+        });
+        const savedUser = await user.save();
+    }catch(e){
+        console.log(e);
+    }
+}
+
+================
+File: app/about/page.tsx
+================
+"use client";
+
+import React from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Assuming you're using ShadCN's Card component
+import { Button } from "@/components/ui/button"; // Assuming you have a reusable Button component
+
+const AboutPage = () => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-yellow-200 via-black to-white">
+      <hr className="border-t border-white" />
+      <header className="bg-black py-10">
+        <div className="container mx-auto px-6">
+        <img src="/images/logo.png" alt="Logo" className="w-20 h-20 mx-auto mt-10 mb-10 bg-white" />
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-white text-center">
+            About Our App
+          </h1>          
+        </div>
+      </header>
+      <main className="container mx-auto px-6 py-16 space-y-16 ">
+        <section className="space-y-6">
+          <h2 className="text-4xl font-semibold text-center text-white">
+            Your Event, Simplified
+          </h2>
+          <p className="text-lg text-center text-white max-w-3xl mx-auto leading-relaxed">
+            Our Private Party Creation App is designed to streamline your event planning. Whether you’re hosting a small gathering or a large celebration, this app makes it easy to create, manage, and enjoy exclusive events. We take care of the details, so you can focus on what matters most—making memories with your guests.
+          </p>
+        </section>
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold text-black">
+                Secure User Authentication
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-black">
+                Easily sign in with Google or use custom credentials to manage your private events securely. We take your privacy seriously.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold text-black">
+                Event Management Made Easy
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-black">
+                Create events in seconds. Set the event details, manage guest lists, and keep track of RSVPs—all from one intuitive dashboard.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold text-black">
+                Invite & Track Guests
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-black">
+                Effortlessly send invites and track guest responses with a click. Stay organized and know exactly who’s attending.
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold text-black">
+                Insightful Dashboard
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-black">
+                Get a comprehensive overview of your upcoming events, guests, and budget from our customizable dashboard.
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+        <section className="text-center">
+          <h2 className="text-4xl font-semibold text-white">Why We Built This App</h2>
+          <p className="text-lg max-w-2xl mx-auto text-white leading-relaxed mt-4">
+            We created this app to take the stress out of event planning. We know how overwhelming it can be to organize all the details, so we made it easy for you to focus on the fun part—creating unforgettable moments with your guests.
+          </p>
+        </section>
+        <section className="text-center">
+          <h2 className="text-4xl font-semibold text-white">Start Planning Your Next Event</h2>
+          <p className="text-lg max-w-xl mx-auto text-white leading-relaxed mt-4">
+            Ready to make your next gathering special? Sign up or log in and start creating your own personalized events today.
+          </p>
+          <div className="mt-8">
+            <Button className="bg-black hover:bg-white hover:text-black text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+              Get Started
+            </Button>
+          </div>
+        </section>
+      </main>
+      <footer className="bg-black py-6 mt-6">
+        <div className="container mx-auto text-center">
+          <p className="text-white text-sm">
+            &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default AboutPage;
+
+================
+File: app/api/auth/[...nextauth]/route.ts
+================
+import { authOptions } from "@/lib/auth";
+import NextAuth from "next-auth";
+
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+
+================
+File: app/api/parties/[id]/route.ts
+================
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import Party from "@/models/Party";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const partyId = params.id;
+    const userId = session.user.id;
+
+    const party = await Party.findOne({
+      _id: new mongoose.Types.ObjectId(partyId),
+      userId: new mongoose.Types.ObjectId(userId)
+    });
+
+    if (!party) {
+      return NextResponse.json({ error: "Party not found" }, { status: 404 });
+    }
+
+    const formattedParty = {
+      id: party._id.toString(),
+      name: party.name,
+      date: party.date.toISOString(),
+      guests: party.guests,
+      budget: party.budget,
+      location: party.location || ""
+    };
+
+    return NextResponse.json(formattedParty);
+  } catch (error) {
+    console.error("Error fetching party:", error);
+    return NextResponse.json({ error: "Failed to fetch party." }, { status: 500 });
+  }
+}
+
+================
+File: app/api/parties/route.ts
+================
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+import Party, { PartyDocument } from "@/models/Party";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { validateCSRFToken } from "@/lib/csrf";
+
+
+
+export async function POST(req: Request) {
+  try {
+    await connectDB();
+
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { name, date, guests, budget, location } = await req.json();
+    const userId = session.user.id;
+
+    // Enhanced input validation
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+    if (!date) {
+      return NextResponse.json({ error: "Date is required" }, { status: 400 });
+    }
+    if (typeof guests !== 'number' || guests <= 0) {
+      return NextResponse.json({ error: "Guests must be a positive number" }, { status: 400 });
+    }
+    if (typeof budget !== 'number' || budget <= 0) {
+      return NextResponse.json({ error: "Budget must be a positive number" }, { status: 400 });
+    }
+
+    // Date validation
+    const partyDate = new Date(date);
+    if (isNaN(partyDate.getTime())) {
+      return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+    }
+    if (partyDate < new Date()) {
+      return NextResponse.json({ error: "Date cannot be in the past" }, { status: 400 });
+    }
+
+    // Create a new party instance
+    const newParty = new Party({
+      name,
+      date: partyDate,
+      guests,
+      budget,
+      location,
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
+    // Save the party to the database
+    const savedParty = await newParty.save();
+
+    // Update user statistics
+    await updateUserStatistics(userId, savedParty as PartyDocument);
+
+    return NextResponse.json({ 
+      message: "Party created successfully!", 
+      partyId: savedParty._id.toString() 
+    }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating party:", error);
+    return NextResponse.json({ error: "Failed to create party. Please try again later." }, { status: 500 });
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const userId = session.user.id;
+
+    const parties = await Party.find({ userId: new mongoose.Types.ObjectId(userId) })
+      .sort({ date: -1 })
+      .limit(5);
+
+    const formattedParties = parties.map(party => ({
+      id: party._id.toString(),
+      name: party.name,
+      date: party.date.toISOString(),
+      guests: party.guests,
+      budget: party.budget,
+      location: party.location || ""
+    }));
+
+    return NextResponse.json(formattedParties);
+  } catch (error) {
+    console.error("Error fetching parties:", error);
+    return NextResponse.json({ error: "Failed to fetch parties." }, { status: 500 });
+  }
+}
+
+async function updateUserStatistics(userId: string, newParty: PartyDocument) {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    {
+      $inc: {
+        totalParties: 1,
+        totalGuests: newParty.guests,
+      },
+      $set: {
+        lastParty: newParty._id,
+      },
+    },
+    { new: true }
+  );
+}
+
+================
+File: app/api/users/[id]/route.ts
+================
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+// import User from "@/models/User";
+// import Party from "@/models/Party"; 
+import User from "@/models/User";
+import Party from "@/models/Party";
+import { UserProfile, UserDashboardData } from '@/types/types';
+
+// interface UserData {
+//   totalParties: number;
+//   partiesIncrease: number;
+//   upcomingEvents: number;
+//   nextEventIn: string;
+//   totalGuests: number;
+//   budgetUsed: string;
+//   budgetUsedPercentage: string;
+//   recentParties: {
+//     id: string;
+//     name: string;
+//     date: string;
+//     location: string;
+//     guests: number;
+//   }[];
+// }
+
+// interface UserProfile {
+//   name: string;
+//   email: string;
+//   phone: string;
+//   image: string;
+// }
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  try {
+    await connectDB();
+
+    const userId = params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const url = new URL(req.url);
+    const profileRequest = url.searchParams.get('profile') === 'true';
+
+    if (profileRequest) {
+      // Return profile data
+      const userProfile: UserProfile = {
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        image: user.image || '',
+      };
+      return NextResponse.json(userProfile, { status: 200 });
+    } else {
+      // Return dashboard data
+      const recentParties = await Party.find({ userId })
+        .sort({ date: -1 })
+        .limit(5);
+
+      const userData: UserDashboardData = {
+        totalParties: user.totalParties ?? 0,
+        partiesIncrease: user.partiesIncrease ?? 0,
+        upcomingEvents: user.upcomingEvents ?? 0,
+        nextEventIn: user.nextEventIn ?? "",
+        totalGuests: user.totalGuests ?? 0,
+        budgetUsed: user.budgetUsed ?? "",
+        budgetUsedPercentage: user.budgetUsedPercentage ?? "",
+        recentParties: recentParties.map(party => ({
+          id: party._id.toString(),
+          name: party.name,
+          date: party.date.toISOString().split('T')[0],
+          location: party.location || "", 
+          guests: party.guests
+        }))
+      };
+      return NextResponse.json(userData, { status: 200 });
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  try {
+    await connectDB();
+    const userId = params.id;
+    const userUpdates = await req.json();
+
+    // Only allow updating specific fields
+    const allowedUpdates: (keyof UserProfile)[] = ['name', 'email', 'phone', 'image'];
+    const filteredUpdates = Object.keys(userUpdates)
+      .filter((key): key is keyof UserProfile => allowedUpdates.includes(key as keyof UserProfile))
+      .reduce((obj, key) => {
+        obj[key] = userUpdates[key];
+        return obj;
+      }, {} as Partial<UserProfile>);
+
+    const user = await User.findByIdAndUpdate(userId, filteredUpdates, { new: true });
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    const updatedProfile: UserProfile = {
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      image: user.image || '',
+    };
+
+    return NextResponse.json(updatedProfile, { status: 200 });
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+  }
+}
+
+================
+File: app/api/users/stats/route.ts
+================
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import Party from "@/models/Party";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import User from "@/models/User";
+import { UserDashboardData } from '@/types/types';
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await connectDB();
+
+    const parties = await Party.find({ userId: session.user.id });
+
+    const stats = {
+      totalParties: parties.length,
+      totalGuests: parties.reduce((sum, party) => sum + party.guests, 0),
+      totalBudget: parties.reduce((sum, party) => sum + party.budget, 0),
+    };
+
+    return NextResponse.json(stats);
+  } catch (error) {
+    console.error("Error fetching user stats:", error);
+    return NextResponse.json({ error: "Failed to fetch user stats." }, { status: 500 });
+  }
+}
+
+================
+File: app/create-event/page.tsx
+================
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
+export default function CreateEvent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
+  const [guests, setGuests] = useState<number | undefined>(undefined);
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<{ [key: string]: string }>({});
+  const [eventData, setEventData] = useState({
+    name: '',
+    date: '',
+    guests: '',
+    budget: '',
+    location: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEventData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError({});
+
+    if (!session?.user?.id) {
+      setError({ general: "User is not authenticated." });
+      setLoading(false);
+      return;
+    }
+
+    // const newErrors: { [key: string]: string } = {};
+    // if (!title.trim()) newErrors.title = "Title is required.";
+    // if (!date.trim()) newErrors.date = "Date is required.";
+    // if (!location.trim()) newErrors.location = "Location is required.";
+    // if (!guests || isNaN(guests)) newErrors.guests = "Guests must be a valid number.";
+    // if (!description.trim()) newErrors.description = "Description is required.";
+
+    
+
+    // if (Object.keys(newErrors).length > 0) {
+    //   setError(newErrors);
+    //   setLoading(false);
+    //   return;
+    // }
+
+    try {
+      const response = await fetch("/api/parties", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...eventData,
+          guests: parseInt(eventData.guests),
+          budget: parseInt(eventData.budget),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create event.");
+      }
+      const data = await response.json();
+      //const eventId = data.id; 
+
+      router.push(`/invite/${data.partyId}`);
+    } catch (err: any) {
+      console.error(err);
+      setError({ general: err.message || "Something went wrong." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    router.push("/auth/signin");
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-200 via-black to-white text-black">
+      <hr className="border-t border-white" />
+      <header className="bg-black py-8">
+        <div className="container mx-auto px-6">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-white text-center">
+            Create Event
+          </h1>
+        </div>
+      </header>
+      
+      <main className="container mx-auto px-6 py-10 flex-grow">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+          {Object.keys(error).length > 0 && (
+            <div
+              role="alert"
+              className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
+            >
+              {Object.values(error).map((msg, index) => (
+                <p key={index} className="font-semibold">
+                  {msg}
+                </p>
+              ))}
+            </div>
+          )}          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              type="text"
+              name="name"
+              placeholder="Event Name"
+              value={eventData.name}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="date"
+              name="date"
+              value={eventData.date}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="number"
+              name="guests"
+              placeholder="Number of Guests"
+              value={eventData.guests}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="number"
+              name="budget"
+              placeholder="Budget"
+              value={eventData.budget}
+              onChange={handleChange}
+              required
+            />
+            <Textarea
+              name="location"
+              placeholder="Location"
+              value={eventData.location}
+              onChange={handleChange}
+            />
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg shadow-sm transition-all duration-300 ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-black hover:bg-white text-white hover:text-black"
+              }`}
+            >
+              {loading ? (
+                <span className="flex justify-center items-center space-x-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  <span>Creating...</span>
+                </span>
+              ) : (
+                "Create Event"
+              )}
+            </Button>
+          </form>
+        </div>
+      </main>
+
+      <footer className="bg-black py-6">
+        <div className="container mx-auto text-center text-white">
+          &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+================
+File: app/dashboard/page.tsx
+================
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CalendarDays, PartyPopper, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { FaPlus } from "react-icons/fa";
+
+interface UserData {
+  totalParties: number;
+  partiesIncrease: number;
+  upcomingEvents: number;
+  nextEventIn: string;
+  totalGuests: number;
+  budgetUsed: string;
+  budgetUsedPercentage: string;
+  recentParties: Array<{
+    id: string;
+    name: string;
+    date: string;
+    location: string;
+    guests: number;
+  }>;
+}
+
+const fetchUserData = async (userId: string) => {
+  const response = await fetch(`/api/users/${userId}`);
+  if (!response.ok) {
+    throw new Error(`Error fetching user data: ${response.status}`);
+  }
+  return await response.json();
+};
+
+export default function Dashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<UserData>({
+    totalParties: 0,
+    partiesIncrease: 0,
+    upcomingEvents: 0,
+    nextEventIn: "",
+    totalGuests: 0,
+    budgetUsed: "",
+    budgetUsedPercentage: "",
+    recentParties: []
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      if (session?.user?.id) {
+        try {
+          setIsLoading(true);
+          setError(null);
+          const userData = await fetchUserData(session.user.id);
+          setUserData(userData);
+        } catch (error) {
+          console.error(error);
+          setError("Failed to load user data. Please try again later.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setError("User ID is undefined");
+      }
+    };
+
+    getUserData();
+  }, [session]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    router.push("/auth/signin");
+    return null;
+  }
+
+  if (isLoading) {
+    return <div>Loading user data...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  if (!userData) {
+    return <div>No user data available.</div>;
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background bg-gradient-to-br from-yellow-200 via-black to-white text-white">
+      {/* <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Feest Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <span>Welcome, {session?.user?.name || ""}</span>
+            <Image
+              src={session?.user?.image || "/placeholder.svg?height=32&width=32"}
+              alt="Profile"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+          </div>
+        </div>
+      </header> */}
+      <hr className="border-t border-white" />
+      <header className="bg-black py-8 ">
+        <div className="container mx-auto px-2 flex justify-between items-center">
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-white text-center">
+            Dashboard
+          </h1>
+          <div className="flex flex-col items-center space-x-4">            
+            <Image
+              src={session?.user?.image || "/placeholder.svg?height=32&width=32"}
+              alt="Profile"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <button onClick={() => router.push("/profile")} className="text-white px-2 py-2 rounded-md">
+              <span>{session?.user?.name || ""} </span>
+            </button>
+          </div>          
+        </div>
+      </header>
+      <main className="flex-grow container mx-auto px-4 py-8">
+      {userData && !isLoading && !error ? (        
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Recent Parties</CardTitle>
+              <PartyPopper className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {Array.isArray(userData?.recentParties) && userData.recentParties.length > 0 ? (
+                <div className="space-y-4">
+                  {userData.recentParties.map((party) => (
+                    <div key={party.id} className="border-b py-2 last:border-none">
+                      <h3 className="font-semibold">{party.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {party.date} | {party.location} ({party.guests} guests)
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>No recent parties found.</p>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userData.upcomingEvents}</div>
+              <p className="text-xs text-muted-foreground">Next event in {userData.nextEventIn} days</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Guests</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userData.totalGuests}</div>
+              <p className="text-xs text-muted-foreground">Across all events</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                className="h-4 w-4 text-muted-foreground"
+              >
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{userData.budgetUsed}</div>
+              <p className="text-xs text-muted-foreground">{userData.budgetUsedPercentage}% of total budget</p>
+            </CardContent>
+          </Card>          
+        </div>       
+        ) : (
+          <div>Loading...</div>
+        )}
+        <div className="mt-12 flex justify-center">
+            <Button asChild>
+              <Link href="/create-event" className="flex items-center space-x-2 m-10 bg-black text-white px-7 py-6 rounded-lg text-xl transition duration-300 hover:bg-white hover:text-black">
+                <FaPlus className="mr-2" />
+                Create New Event
+              </Link>
+            </Button>
+        </div>
+      </main>
+      <footer className="bg-black py-6 mt-6">
+        <div className="container mx-auto text-center">
+          <p className="text-white text-sm">
+            © {new Date().getFullYear()} Shareflyt. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+================
+File: app/invite/[eventId]/page.tsx
+================
+"use client";
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import InvitationForm from '@/components/InvitationForm';
+
+interface Party {
+  id: string;
+  name: string;
+  date: string;
+  guests: number;
+  budget: number;
+  location: string;
+}
+
+export default function InvitePage() {
+  const params = useParams();
+  const eventId = params.eventId as string;
+  const [error, setError] = useState<string | null>(null);
+  const [event, setEvent] = useState<Party | null>(null);
+
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      try {
+        const eventId = params.eventId as string;
+        if (!eventId) {
+          throw new Error('Event ID is missing');
+        }
+
+        const response = await fetch(`/api/parties/${eventId}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch party details');
+        }
+        const data = await response.json();
+        setEvent(data);
+      } catch (error) {
+        console.error('Error fetching event details:', error);
+      }
+    };
+
+    fetchEventDetails();
+  }, [eventId]);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!event) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-200 via-black to-white text-white py-10 px-6">
+      <Card className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 text-white shadow-lg rounded-lg mx-auto max-w-xl w-full justify-items-center p-6">
+        <CardHeader className="mb-4">
+          <CardTitle className="text-3xl font-bold text-white text-center">
+            {event.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-x-6 gap-y-4">
+          <p className="text-lg">
+            <span className="font-semibold text-yellow-100">Date: </span>
+            {new Date(event.date).toLocaleDateString()}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-yellow-100">Location: </span>
+            {event.location}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-yellow-100">Guests: </span>
+            {event.guests}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-yellow-100">Budget: </span>
+            ${event.budget}
+          </p>
+        </CardContent>
+      </Card>
+      <div className="max-w-3xl mx-auto">
+        <InvitationForm eventId={eventId} />
+      </div>
+    </div>
+
+  );
+}
+
+================
+File: app/invite/page.tsx
+================
+import InvitationForm from '../../components/InvitationForm';
+
+export default function InvitePage({ eventId }: { eventId: string }) {
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Invite Friends to Your Party</h1>
+      <InvitationForm eventId={eventId} />
+    </div>
+  );
+}
+
+================
+File: app/login/page.tsx
+================
+"use client";
+import { FormEvent, useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+export default function Login() {
+    const [error, setError] = useState("");
+    const router = useRouter();
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const res = await signIn("credentials", {
+          email: formData.get("email"),
+          password: formData.get("password"),
+          redirect: false,
+        });
+        if (res?.error) {
+          setError(res.error as string);
+        }
+        if (res?.ok) {
+          return router.push("/");;
+        }
+    };
+    return (
+        <section className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-yellow-200 via-black to-white text-black">
+          <form
+            className="p-6 w-full max-w-[400px] flex flex-col justify-between items-center gap-2 
+            border border-solid border-black bg-white text-black rounded bg-gradient-to-br from-yellow-200 via-black to-white"
+            onSubmit={handleSubmit}>
+            {error && <div className="text-black">{error}</div>}
+            <img src="/images/logo.png" alt="Logo" className="w-45 h-60 mx-auto m-4 rounded-full shadow-lg shadow-black"/>
+            <h1 className="mb-5 w-full text-2xl font-bold text-white text-center">Login</h1>
+            <label className="w-full text-sm text-white">Email</label>
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full h-8 border border-solid border-black rounded p-2 placeholder:text-black"
+              name="email" />
+            <label className="w-full text-sm text-white">Password</label>
+            <div className="flex w-full">
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full h-8 border border-solid border-black rounded p-2 placeholder:text-black"
+                name="password" />
+            </div>
+            <button className="w-full border border-solid border-black rounded text-white hover:bg-black placeholder:text-black mt-6 p-2">
+              Login
+            </button>
+            <Link
+              href="/register"
+              className="text-md text-white transition duration-150 ease hover:text-black placeholder:text-black">
+              Don't have an account?
+            </Link>
+          </form>
+        </section>
+    );
+};
+
+================
+File: app/profile/page.tsx
+================
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface UserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  image: string;
+}
+
+const fetchUserProfile = async (userId: string) => {
+  const response = await fetch(`/api/users/${userId}?profile=true`);
+  if (!response.ok) {
+    throw new Error(`Error fetching user profile: ${response.status}`);
+  }
+  return await response.json();
+};
+
+const updateUserProfile = async (userId: string, data: Partial<UserProfile>) => {
+    const response = await fetch(`/api/users/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`Error updating user profile: ${response.status}`);
+    }
+    return await response.json();
+};
+
+
+export default function Profile() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    name: '',
+    email: '',
+    phone: '',
+    image: '',
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<UserProfile>({
+    name: '',
+    email: '',
+    phone: '',
+    image: '',
+  });
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      if (session?.user?.id) {
+        try {
+          setIsLoading(true);
+          setError(null);
+          const profile = await fetchUserProfile(session.user.id);
+          setUserProfile(profile);
+          setEditedProfile(profile);
+        } catch (error) {
+          console.error(error);
+          setError("Failed to load user profile. Please try again later.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setError("User ID is undefined");
+      }
+    };
+
+    getUserProfile();
+  }, [session]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    router.push("/auth/signin");
+    return null;
+  }
+
+  if (isLoading) {
+    return <div>Loading user profile...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setNewImage(e.target.files[0]);
+      setPreviewUrl(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+  
+  const handleImageUpload = async () => {
+    if (newImage && session?.user?.id) {
+      const formData = new FormData();
+      formData.append('image', newImage);
+  
+      try {
+        const response = await fetch(`/api/users/${session.user.id}/image`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to upload image');
+        }
+  
+        const data = await response.json();
+        setEditedProfile(prev => ({ ...prev, image: data.imageUrl }));
+        setNewImage(null);
+        setPreviewUrl(null);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        setError('Failed to upload image. Please try again.');
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedProfile(userProfile);
+  };
+
+  const handleSave = async () => {
+    if (session?.user?.id) {
+      try {
+        setIsLoading(true);
+        setError(null);
+  
+        const formData = new FormData();
+        formData.append('name', editedProfile.name);
+        formData.append('email', editedProfile.email);
+        formData.append('phone', editedProfile.phone);
+  
+        if (newImage) {
+          formData.append('image', newImage);
+        }
+  
+        const response = await fetch(`/api/users/${session.user.id}`, {
+          method: 'PUT',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to update user profile');
+        }
+  
+        const updatedProfile = await response.json();
+        setUserProfile(updatedProfile);
+        setIsEditing(false);
+        setNewImage(null);
+        setPreviewUrl(null);
+      } catch (error) {
+        console.error(error);
+        setError("Failed to update user profile. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedProfile(prev => ({ ...prev, [name]: value }));
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background bg-gradient-to-br from-yellow-200 via-black to-white text-white">
+      <hr className="border-t border-white" />
+      <header className="bg-black py-8">
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-white text-center">
+            Profile
+          </h1>
+          {/* <div className="flex items-center space-x-4">
+            <span>{session?.user?.name || ""} </span>
+            <Image
+              src={previewUrl || editedProfile.image || "/placeholder.svg?height=128&width=128"}
+              alt="Profile"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+          </div>           */}
+        </div>
+      </header>
+      <main className="flex-grow container mx-auto px-4 py-8 m-10">
+        <Card>
+          <CardHeader>
+            <CardTitle>Hello, <span>{session?.user?.name} </span></CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <Image
+                  src={previewUrl || editedProfile.image || "/placeholder.svg?height=128&width=128"}
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+              </div>
+              {isEditing ? (
+                <>
+                  <Input
+                    name="name"
+                    value={editedProfile.name}
+                    onChange={handleChange}
+                    placeholder="Name"
+                  />
+                  <Input
+                    name="email"
+                    value={editedProfile.email}
+                    onChange={handleChange}
+                    placeholder="Email"
+                    type="email"
+                  />
+                  <Input
+                    name="phone"
+                    value={editedProfile.phone}
+                    onChange={handleChange}
+                    placeholder="Phone"
+                  />
+                  <Input
+                    name="image"
+                    value={editedProfile.image}
+                    onChange={handleChange}
+                    placeholder="Image URL"
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full"
+                    />
+                    <Button onClick={handleImageUpload} disabled={!newImage}>
+                      Upload
+                    </Button>
+                    <Button onClick={handleCancel} variant="outline">Cancel</Button>
+                    <Button onClick={handleSave}>Save</Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p><strong>Name:</strong> {userProfile.name}</p>
+                  <p><strong>Email:</strong> {userProfile.email}</p>
+                  <p><strong>Phone:</strong> {userProfile.phone || 'Not provided'}</p>
+                  <div className="flex justify-end">
+                    <Button onClick={handleEdit}>Edit Profile</Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+      <footer className="bg-black py-6 mt-6">
+        <div className="container mx-auto text-center">
+          <p className="text-white text-sm">
+            &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+================
+File: app/register/page.tsx
+================
+"use client";
+import { FormEvent, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { register } from "@/actions/register";
+
+
+export default function Register() {
+  const [error, setError] = useState<string>();
+  const router = useRouter();
+  const ref = useRef<HTMLFormElement>(null);
+
+  const handleSubmit = async (formData: FormData) => {
+    const r = await register({
+        email: formData.get("email"),
+        password: formData.get("password"),
+        name: formData.get("name"),
+        redirect: false,    
+      });
+      ref.current?.reset();
+      if(r?.error){
+        setError(r.error);
+        return;
+      } else {
+        return router.push("/");
+      }
+  };
+  return(
+    <section className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-yellow-200 via-black to-white text-black">
+          <form ref = {ref}
+            action={handleSubmit}
+            className="p-6 w-full max-w-[400px] flex flex-col justify-between items-center gap-2 
+            border border-solid border-black bg-white rounded bg-gradient-to-br from-white via-black to-yellow-200">
+            {error && <div className="">{error}</div>}
+            <img src="/images/logo.png" alt="Logo" className="w-45 h-60 mx-auto m-2 rounded-full shadow-lg shadow-black"/>
+            <h1 className="mb-5 w-full text-2xl font-bold text-white text-center">Register</h1>
+            <label className="w-full text-sm text-white">Full Name</label>
+            <input
+              type="text"
+              placeholder="Full Name"
+              className="w-full h-8 border border-solid border-black py-1 px-2.5 rounded text-[13px] "
+              name="name"
+            />
+            <label className="w-full text-sm text-white">Email</label>
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full h-8 border border-solid border-black py-1 px-2.5 rounded"
+              name="email"
+            />
+            <label className="w-full text-sm text-white">Password</label>
+            <div className="flex w-full">
+              <input
+                type="password"
+                placeholder="Password"
+                className="w-full h-8 border border-solid border-black py-1 px-2.5 rounded"
+                name="password"
+              />
+            </div>
+            <button className="w-full border border-solid border-black py-1.5 mt-2.5 rounded
+            transition duration-150 ease hover:bg-black text-white hover:text-white">
+              Sign up
+            </button>
+            
+            <Link href="/login" className="text-sm transition duration-150 ease hover:text-black text-white">
+              Already have an account?
+              </Link>
+          </form>
+    </section>
+    )
+}
+
+================
+File: app/globals.css
+================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+================
+File: app/layout.tsx
+================
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+import Navbar  from "../components/Navbar";
+import { connectDB } from "@/lib/db";
+import { Provider } from  "./provider";
+
+
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-geist-sans",
+  weight: "100 900",
+});
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
+
+export const metadata: Metadata = {
+  title: "Feest App",
+  description: "Create events and invite friends",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  connectDB();
+  return (
+    
+    <html lang="en">
+      <Provider>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <Navbar />
+          {children}
+          
+        </body>
+      </Provider>
+    </html>
+  );
+}
+
+================
+File: app/page.tsx
+================
+'use client';
+import { Button } from "@/components/ui/button";
+import { LogInIcon, UserPlus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useEffect, useState } from 'react';
+import { FaCalendar, FaUsers, FaPlus } from 'react-icons/fa';
+
+interface Party {
+  id: string;
+  name: string;
+  date: string;
+  guests: number;
+  budget: number;
+}
+
+const CustomButton = ({ href, icon: Icon, text }: { href: string; icon: React.ElementType; text: string }) => (
+  <Button asChild>
+    <Link href={href} className="flex items-center align-center justify-center justify-items-center space-x-2 m-10 bg-black text-white px-7 py-6 rounded-lg text-xl transition duration-300 hover:bg-white hover:text-black">
+      <Icon className="mr-2" />
+      {text}
+    </Link>
+  </Button>
+);
+
+export default function Home() {
+  const {data: session, status } = useSession();
+  const [parties, setParties] = useState<Party[]>([]);
+  const [stats, setStats] = useState({ totalParties: 0, totalGuests: 0, totalBudget: 0 });
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchParties();
+      fetchStats();
+    }
+  }, [status]);
+
+  const fetchParties = async () => {
+    try {
+      const response = await fetch('/api/parties');
+      if (response.ok) {
+        const data = await response.json();
+        setParties(data.slice(0, 5)); 
+      }
+    } catch (error) {
+      console.error('Error fetching parties:', error);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/user/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  return (    
+    
+    <main className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-200 via-black to-white text-black">
+      <hr className="border-t border-white" />      
+      <div className="container mx-auto px-4 py-8 flex-grow">
+        <header className="flex justify-center items-center mb-12 ">           
+          {status === "authenticated" ? (
+            <div className="flex items-center space-x-4 bg-transparent text-white px-4 py-2 ">
+              
+            </div>
+          ) : status === "unauthenticated" ? (            
+              <section className="text-center mt-20">
+                <img src="/images/logo.png" alt="Logo" className="w-80 h-80 mx-auto mt-10 mb-10 rounded" />
+                <h2 className="text-3xl font-bold mb-4 text-white">Plan Your Next Event with Ease</h2>
+                <p className="text-xl mb-8 text-white">Join Feest to create and manage your parties effortlessly.</p>
+                <CustomButton href="/register" icon={UserPlus} text="Register" />
+                <CustomButton href="/login" icon={LogInIcon} text="Login" />
+              </section>          
+            
+          ) : (
+            <span className="text-sm">Loading...</span>
+          )}
+          
+          
+        </header>
+
+        {status === "authenticated" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <section className="bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 shadow-2xl m-2">
+              <h1 className="font-semibold text-3xl mb-10 text-center">Hello {session?.user?.name}</h1>
+              <h2 className="text-2xl font-bold mb-10 text-center">Your Statistics</h2>
+              <div className="grid grid-cols-2 mt-20">
+                <div className="text-center">
+                  <FaCalendar className="text-3xl mx-auto mb-2" />
+                  <p className="text-2xl font-bold">{stats.totalParties}</p>
+                  <p className="text-sm">Total Parties</p>
+                </div>
+                <div className="text-center">
+                  <FaUsers className="text-3xl mx-auto mb-2" />
+                  <p className="text-2xl font-bold">{stats.totalGuests}</p>
+                  <p className="text-sm">Total Guests</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-xl p-6 shadow-2xl m-2">
+              <h2 className="text-2xl font-bold mb-6 text-center">Upcoming Parties</h2>
+              {parties.length > 0 ? (
+                <ul className="space-y-4">
+                  {parties.map((party) => (
+                    <li key={party.id} className="bg-white bg-opacity-50 rounded-lg p-4">
+                      <h3 className="font-bold">{party.name}</h3>
+                      <p className="text-sm">Date: {new Date(party.date).toLocaleDateString()}</p>
+                      <p className="text-sm">Guests: {party.guests}</p>
+                      <p className="text-sm">Budget: ${party.budget}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No upcoming parties. Time to plan one!</p>
+              )}
+            </section>         
+          </div>            
+        )}
+        {status === "authenticated" && (
+          <div className="mt-12 flex justify-center ">
+            <Button asChild>
+              <Link href="/create-event" className="flex items-center space-x-2 m-10 bg-black text-white px-7 py-6 rounded-lg text-xl transition duration-300 hover:bg-white hover:text-black">
+                <FaPlus className="mr-2" />
+                Create New Event
+              </Link>
+            </Button>
+          </div>
+        )}
+
+        {/* {status === "unauthenticated" && (
+          <section className="text-center mt-20">
+            <h2 className="text-3xl font-bold mb-4 text-white">Plan Your Next Event with Ease</h2>
+            <p className="text-xl mb-8 text-white">Join Feest to create and manage your parties effortlessly.</p>
+            <Link href="/register" className="bg-black text-white px-8 py-3 rounded-full font-bold text-lg transition duration-300 hover:black hover:text-black hover:bg-white">
+              Get Started
+            </Link> 
+            <Button asChild>
+              <Link href="/register" className="flex items-center space-x-2 m-10 bg-black text-white px-7 py-6 rounded-lg text-xl transition duration-300 hover:bg-white hover:text-black">
+                <UserPlus className="mr-2" />
+                Register
+              </Link>
+            </Button>          
+          </section>          
+        )}
+        {status === "unauthenticated" && (
+          <section className="text-center mt-20">
+            <h2 className="text-3xl font-bold mb-4 text-white">Plan Your Next Event with Ease</h2>
+            <p className="text-xl mb-8 text-white">Join Feest to create and manage your parties effortlessly.</p>
+            <Button asChild>
+              <Link href="/login" className="flex items-center space-x-2 m-10 bg-black text-white px-7 py-6 rounded-lg text-xl transition duration-300 hover:bg-white hover:text-black">
+                <LogInIcon className="mr-2" />
+                Login
+              </Link>
+            </Button>
+          </section>          
+        )} */}
+      </div>
+
+      <footer className="bg-black py-6">
+        <div className="container mx-auto text-center text-white">
+          &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+        </div>
+      </footer>
+    </main>   
+);
+}
+
+================
+File: app/provider.tsx
+================
+"use client";
+import { SessionProvider } from "next-auth/react";
+type Props = {
+  children?: React.ReactNode;
+};
+export const Provider = ({ children }: Props) => {
+  return <SessionProvider>{children}</SessionProvider>;
+};
+
+================
+File: components/ui/button.tsx
+================
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }
+
+================
+File: components/ui/card.tsx
+================
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-xl border bg-card text-card-foreground shadow",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
+
+const CardTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3
+    ref={ref}
+    className={cn("font-semibold leading-none tracking-tight", className)}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+
+================
+File: components/ui/input.tsx
+================
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Input.displayName = "Input"
+
+export { Input }
+
+================
+File: components/ui/sheet.tsx
+================
+"use client"
+
+import * as React from "react"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
+import { Cross2Icon } from "@radix-ui/react-icons"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const Sheet = SheetPrimitive.Root
+
+const SheetTrigger = SheetPrimitive.Trigger
+
+const SheetClose = SheetPrimitive.Close
+
+const SheetPortal = SheetPrimitive.Portal
+
+const SheetOverlay = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Overlay
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    )}
+    {...props}
+    ref={ref}
+  />
+))
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
+
+const sheetVariants = cva(
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  {
+    variants: {
+      side: {
+        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        bottom:
+          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+        right:
+          "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+      },
+    },
+    defaultVariants: {
+      side: "right",
+    },
+  }
+)
+
+interface SheetContentProps
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+    VariantProps<typeof sheetVariants> {}
+
+const SheetContent = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Content>,
+  SheetContentProps
+>(({ side = "right", className, children, ...props }, ref) => (
+  <SheetPortal>
+    <SheetOverlay />
+    <SheetPrimitive.Content
+      ref={ref}
+      className={cn(sheetVariants({ side }), className)}
+      {...props}
+    >
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <Cross2Icon className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </SheetPrimitive.Close>
+      {children}
+    </SheetPrimitive.Content>
+  </SheetPortal>
+))
+SheetContent.displayName = SheetPrimitive.Content.displayName
+
+const SheetHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className
+    )}
+    {...props}
+  />
+)
+SheetHeader.displayName = "SheetHeader"
+
+const SheetFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    )}
+    {...props}
+  />
+)
+SheetFooter.displayName = "SheetFooter"
+
+const SheetTitle = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Title
+    ref={ref}
+    className={cn("text-lg font-semibold text-foreground", className)}
+    {...props}
+  />
+))
+SheetTitle.displayName = SheetPrimitive.Title.displayName
+
+const SheetDescription = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <SheetPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+SheetDescription.displayName = SheetPrimitive.Description.displayName
+
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+}
+
+================
+File: components/ui/textarea.tsx
+================
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <textarea
+        className={cn(
+          "flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Textarea.displayName = "Textarea"
+
+export { Textarea }
+
+================
+File: components/ClientScript.tsx
+================
+'use client';
+
+import Script from 'next/script';
+
+interface ClientScriptProps {
+  src: string;
+  strategy: 'lazyOnload' | 'afterInteractive' | 'beforeInteractive';
+  onLoad: () => void;
+}
+
+export default function ClientScript({ src, strategy, onLoad }: ClientScriptProps) {
+  return <Script src={src} strategy={strategy} onLoad={onLoad} />;
+}
+
+================
+File: components/InvitationForm.tsx
+================
+'use client';
+
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+
+interface InvitationFormProps {
+  eventId: string;
+}
+
+const InvitationForm: React.FC<InvitationFormProps> = ({ eventId }) => {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleEmailInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, message }),
+      });
+      if (response.ok) {
+        alert('Invitation sent successfully!');
+        setEmail('');
+        setMessage('');
+      } else {
+        throw new Error('Failed to send invitation');
+      }
+    } catch (error) {
+      alert('Error sending invitation. Please try again.');
+    }
+  };
+
+  const handleFacebookInvite = () => {
+    // @ts-ignore
+    FB.ui({
+      method: 'apprequests',
+      message: 'Join my party!',
+    }, (response: any) => {
+      if (response && !response.error) {
+        alert('Invitation sent successfully!');
+      } else {
+        alert('Error sending invitation. Please try again.');
+      }
+    });
+  };
+  return (
+    <div className="flex flex-col bg-transparent items-center justify-center p-20 mx-auto">
+      <form onSubmit={handleEmailInvite} className="bg-gray-800 shadow-lg rounded-lg p-4 space-y-6 max-w-lg w-[680px]">
+        <h2 className="text-2xl font-bold text-white mb-4 text-center">Send an Invitation</h2>
+        <Input
+          type="email"
+          placeholder="Friend's Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full text-white p-4 rounded-md focus:ring-2 focus:ring-yellow-400 border border-gray-700"
+        />
+        <Textarea
+          placeholder="Invitation Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className="w-full text-white p-4 rounded-md focus:ring-2 focus:ring-yellow-400 border border-gray-700"
+          rows={5}
+        />
+        <Button 
+          type="submit" 
+          className="w-full bg-black text-white font-semibold py-3 rounded-md hover:bg-white hover:text-black transition-all duration-300"
+        >
+          Send Email Invitation
+        </Button>
+        <Button 
+          onClick={handleFacebookInvite} 
+          className="w-full bg-blue-400 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition-all duration-300"
+        >
+          Invite via Facebook
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+export default InvitationForm;
+
+================
+File: components/Navbar.tsx
+================
+"use client";
+
+import Link from "next/link";
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { JSX, SVGProps } from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+const AuthLink = ({ href, children, className }: { href: string; children: any; className?: string }) => {
+  const { data: session } = useSession();
+
+  if (!session) return null;
+
+  return (
+    <Link href={href} className={className} prefetch={false}>
+      {children}
+    </Link>
+  );
+};
+
+export default function Navbar() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/profile", label: "Profile" },
+    { href: "/about", label: "About" },
+  ];
+
+  return (
+    <div className="flex justify-between px-10 py-3 bg-black dark:bg-gray-800 text-white">
+      <Link href="/" className="flex items-center gap-2 text-white" prefetch={false}>
+        <MountainIcon className="h-6 w-6" />
+        <span className="text-lg font-semibold text-white">Feest Inc</span>
+      </Link>
+      <div className="hidden md:flex gap-4 ">
+        {status === "authenticated" && navLinks.map((link) => (
+          <AuthLink key={link.href} href={link.href} className="text-lg font-medium hover:underline underline-offset-4">
+            {link.label}
+          </AuthLink>
+        ))}
+
+        {status === "authenticated" ? (
+          <button onClick={() => signOut()} className="text-lg font-medium hover:underline underline-offset-4">
+            Logout
+          </button>
+        ) : status === "unauthenticated" ? (
+          <Link href="/login" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
+            Login
+          </Link>
+        ) : (
+          <span className="text-lg font-medium">Loading...</span>
+        )}
+      </div>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="lg:hidden md:hidden text-black">
+            <MenuIcon className="h-6 w-6" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left">
+          <SheetTitle>Feest</SheetTitle> 
+          <div className="grid w-[200px] p-4 ">
+            {status === "authenticated" && navLinks.map((link) => (
+              <AuthLink key={link.href} href={link.href} className="text-lg font-medium hover:underline underline-offset-4">
+                {link.label}
+              </AuthLink>
+            ))}
+
+            {status === "authenticated" ? (
+              <button onClick={() => signOut()} className="text-lg font-medium hover:underline underline-offset-4">
+                Sign out
+              </button>
+            ) : status === "unauthenticated" ? (
+              <Link href="/login" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
+                Login
+              </Link>
+            ) : (
+              <span className="text-lg font-medium">Loading...</span>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+
+function MenuIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
+  );
+}
+
+function MountainIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+    </svg>
+  );
+}
+
+================
+File: docs/.project_structure_filter
+================
+node_modules/
+.next/
+.idx/
+.vscode/
+
+================
+File: docs/.project_structure_ignore
+================
+node_modules
+dist
+*.log
+next
+
+================
+File: docs/project_structure_filtered.txt
+================
+--- Folder Structure ---
+[actions]
+    └── register.ts
+[app]
+    ├── [about]
+        └── page.tsx
+    ├── [api]
+        ├── [auth]
+        ├── [parties]
+            └── route.ts
+        └── [user]
+            ├── [[id]]
+                └── route.ts
+            └── [stats]
+                └── route.ts
+    ├── [create-event]
+        └── page.tsx
+    ├── [dashboard]
+        └── page.tsx
+    ├── favicon.ico
+    ├── [fonts]
+        ├── GeistMonoVF.woff
+        └── GeistVF.woff
+    ├── globals.css
+    ├── layout.tsx
+    ├── [login]
+        └── page.tsx
+    ├── page.tsx
+    ├── [profile]
+        └── page.tsx
+    ├── provider.tsx
+    └── [register]
+        └── page.tsx
+[components]
+    ├── Navbar.tsx
+    └── [ui]
+        ├── button.tsx
+        ├── card.tsx
+        ├── input.tsx
+        ├── sheet.tsx
+        └── textarea.tsx
+components.json
+[lib]
+    ├── auth.ts
+    ├── db.ts
+    └── utils.ts
+[models]
+    ├── ActivityLog.ts
+    ├── Guest.ts
+    ├── Party.ts
+    └── User.ts
+package-lock.json
+package.json
+postcss.config.mjs
+tailwind.config.ts
+tsconfig.json
+
+================
+File: lib/auth.ts
+================
+import { connectDB } from "./db";
+import User from "../models/User";
+import type { NextAuthOptions } from "next-auth";
+import credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { JWT } from "next-auth/jwt";
+
+interface CustomToken extends JWT {
+  id: string; 
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    credentials({
+      name: "Credentials",
+      id: "credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        await connectDB();
+        const user = await User.findOne({
+            email: credentials?.email,
+        }).select("+password");
+        
+        if (!user) throw new Error("Wrong Email");
+        
+        const passwordMatch = await bcrypt.compare(
+            credentials!.password,
+            user.password
+        );
+    
+        if (!passwordMatch) throw new Error("Wrong Password");
+        
+        // Return user data including ID
+        return {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            image: user.image || "/placeholder.svg?height=32&width=32", 
+        };
+      }
+    }),
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      const customToken = token as CustomToken;
+
+      if (customToken) {
+          session.user.id = customToken.id; 
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      const customToken = token as CustomToken;
+
+      if (user) {
+          customToken.id = user.id; 
+      }
+      return customToken;
+    },
+  },
+  session: {
+    strategy: "jwt",
+  },
+};
+
+================
+File: lib/csrf.ts
+================
+import Tokens from 'csrf';
+
+const tokens = new Tokens();
+
+export function generateCSRFToken() {
+  return tokens.create(process.env.CSRF_SECRET as string);
+}
+
+export function validateCSRFToken(token: string) {
+  return tokens.verify(process.env.CSRF_SECRET as string, token);
+}
+
+================
+File: lib/db.ts
+================
+import mongoose from "mongoose";
+
+const { MONGODB_URI } = process.env;
+
+export const connectDB = async () => {
+  try {
+    const { connection } = await mongoose.connect(MONGODB_URI as string);
+    if (connection.readyState === 1) {
+      return Promise.resolve(true);
+    }
+  } catch (error) {
+    console.error(error);
+    return Promise.reject(error);
+  }
+};
+
+================
+File: lib/middleware.ts
+================
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+
+export async function validateSession(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return session;
+}
+
+================
+File: lib/utils.ts
+================
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+import nodemailer from 'nodemailer';
+
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+
+// export async function sendEmail(to: string, subject: string, text: string) {
+//   const transporter = nodemailer.createTransport({
+//     // Configure your email service here
+//   });
+
+//   await transporter.sendMail({
+//     from: 'your-email@example.com',
+//     to,
+//     subject,
+//     text,
+//   });
+// }
+
+================
+File: models/ActivityLog.ts
+================
+import mongoose, { Schema, Document, model } from "mongoose";
+
+export interface ActivityLogDocument extends Document {
+  action: string;
+  timestamp: Date;
+  userId: mongoose.Types.ObjectId;
+}
+
+const ActivityLogSchema = new Schema<ActivityLogDocument>({
+  action: {
+    type: String,
+    required: [true, "Action is required"],
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+});
+
+const ActivityLog = mongoose.models?.ActivityLog || model<ActivityLogDocument>("ActivityLog", ActivityLogSchema);
+export default ActivityLog;
+
+================
+File: models/Guest.ts
+================
+import mongoose, { Schema, Document, model } from "mongoose";
+
+export interface GuestDocument extends Document {
+  name: string;
+  email: string;
+  phone?: string;
+  partyId: mongoose.Types.ObjectId; 
+}
+
+const GuestSchema = new Schema<GuestDocument>({
+  name: {
+    type: String,
+    required: [true, "Guest name is required"],
+  },
+  email: {
+    type: String,
+    required: [true, "Guest email is required"],
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Email is invalid",
+    ],
+  },
+  phone: String,
+  partyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Party",
+    required: true,
+  },
+});
+
+const Guest = mongoose.models?.Guest || model<GuestDocument>("Guest", GuestSchema);
+export default Guest;
+
+================
+File: models/Party.ts
+================
+import mongoose, { Schema, Document, model, Types } from "mongoose";
+
+export interface PartyDocument extends Document {
+  _id: Types.ObjectId;
+  name: string;
+  date: Date;
+  guests: number;
+  budget: number;
+  location?: string;
+  userId: mongoose.Types.ObjectId; 
+}
+
+const PartySchema = new Schema<PartyDocument>({
+  name: {
+    type: String,
+    required: [true, "Party name is required"],
+  },
+  date: {
+    type: Date,
+    required: [true, "Party date is required"],
+  },
+  guests: {
+    type: Number,
+    default: 0,
+  },
+  budget: {
+    type: Number,
+    default: 0,
+  },
+  location: {
+    type: String,
+    default: "", 
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", 
+    required: true,
+  },
+});
+
+const Party = mongoose.models.Party || model<PartyDocument>("Party", PartySchema);
+export default Party;
+
+================
+File: models/User.ts
+================
+import  mongoose, { Schema, Document, model } from  "mongoose";
+
+export interface UserDocument extends Document {
+    _id: string;
+    email: string;
+    password: string;
+    name: string;
+    phone: string;
+    image: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const UserSchema = new Schema<UserDocument>({
+    email: {
+      type: String,
+      unique: true,
+      required: [true, "Email is required"],
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Email is invalid",
+      ],
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: [true, "Name is required"]
+    },
+    phone: {
+      type: String,
+      required: false, 
+    },
+    image: {
+        type: String,
+        required: false, 
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const  User  =  mongoose.models?.User  ||  model<UserDocument>('User', UserSchema);
+export  default  User;
+
+================
+File: types/next-auth.d.ts
+================
+import NextAuth, { DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    email: string;
+    name?: string;
+    image?: string;
+    // Add any other user properties you're using
+  }
+
+  interface Session extends DefaultSession {
+    user: User;
+    // Add any custom session properties
+  }
+
+  interface Account {
+    provider: string;
+    type: string;
+    // Add any custom account properties
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    // Add any other properties you're including in the JWT
+  }
+}
+
+================
+File: types/types.ts
+================
+// File: types/types.ts
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+    phone?: string;
+    totalParties?: number;
+    totalGuests?: number;
+    lastParty?: string;
+  }
+  
+  export interface Party {
+    id: string;
+    name: string;
+    date: string;
+    guests: number;
+    budget: number;
+    location?: string;
+    userId: string;
+  }
+  
+  export interface UserProfile {
+    name: string;
+    email: string;
+    phone: string;
+    image: string;
+  }
+  
+  export interface UserDashboardData {
+    totalParties: number;
+    partiesIncrease: number;
+    upcomingEvents: number;
+    nextEventIn: string;
+    totalGuests: number;
+    budgetUsed: string;
+    budgetUsedPercentage: string;
+    recentParties: {
+      id: string;
+      name: string;
+      date: string;
+      location: string;
+      guests: number;
+    }[];
+  }
+
+================
+File: .eslintrc.json
+================
+{
+  "extends": ["next/core-web-vitals", "next/typescript"]
+}
+
+================
+File: .gitignore
+================
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+================
+File: components.json
+================
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  }
+}
+
+================
+File: next.config.mjs
+================
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    images: {
+        domains: ['localhost'], 
+    },
+};
+
+export default nextConfig;
+
+================
+File: package.json
+================
+{
+  "name": "out",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "csrf": "^3.1.0",
+    "dotenv": "^16.4.5",
+    "lucide-react": "^0.452.0",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.7.1",
+    "next": "14.2.14",
+    "next-auth": "^4.24.8",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.3.0",
+    "sharp": "^0.33.5",
+    "tailwind-merge": "^2.5.3",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/formidable": "^3.4.5",
+    "@types/node": "^20",
+    "@types/nodemailer": "^6.4.16",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.14",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+
+================
+File: postcss.config.mjs
+================
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+};
+
+export default config;
+
+================
+File: README.md
+================
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+================
+File: tailwind.config.ts
+================
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+    darkMode: ["class"],
+    content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+  	extend: {
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		}
+  	}
+  },
+  plugins: [require("tailwindcss-animate")],
+};
+export default config;
+
+================
+File: tsconfig.json
+================
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

@@ -5,23 +5,43 @@ import Party, { PartyDocument } from "@/models/Party";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { validateCSRFToken } from "@/lib/csrf";
+
 
 
 export async function POST(req: Request) {
   try {
     await connectDB();
 
-    const { name, date, guests, budget, location, userId } = await req.json();
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { name, date, guests, budget, location } = await req.json();
+    const userId = session.user.id;
 
     // Enhanced input validation
-    if (!name || !date || typeof guests !== 'number' || typeof budget !== 'number' || !userId) {
-      return NextResponse.json({ error: "Missing or invalid required fields" }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+    if (!date) {
+      return NextResponse.json({ error: "Date is required" }, { status: 400 });
+    }
+    if (typeof guests !== 'number' || guests <= 0) {
+      return NextResponse.json({ error: "Guests must be a positive number" }, { status: 400 });
+    }
+    if (typeof budget !== 'number' || budget <= 0) {
+      return NextResponse.json({ error: "Budget must be a positive number" }, { status: 400 });
     }
 
     // Date validation
     const partyDate = new Date(date);
-    if (isNaN(partyDate.getTime()) || partyDate < new Date()) {
-      return NextResponse.json({ error: "Invalid or past date" }, { status: 400 });
+    if (isNaN(partyDate.getTime())) {
+      return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+    }
+    if (partyDate < new Date()) {
+      return NextResponse.json({ error: "Date cannot be in the past" }, { status: 400 });
     }
 
     // Create a new party instance
@@ -38,16 +58,11 @@ export async function POST(req: Request) {
     const savedParty = await newParty.save();
 
     // Update user statistics
-    try {
-      await updateUserStatistics(userId, savedParty as PartyDocument);
-    } catch (error) {
-      console.error("Error updating user statistics:", error);
-      // Consider whether to return an error or continue
-    }
+    await updateUserStatistics(userId, savedParty as PartyDocument);
 
     return NextResponse.json({ 
       message: "Party created successfully!", 
-      partyId: newParty._id.toString() 
+      partyId: savedParty._id.toString() 
     }, { status: 201 });
   } catch (error) {
     console.error("Error creating party:", error);

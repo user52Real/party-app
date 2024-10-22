@@ -1,13 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { JSX, SVGProps } from "react";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+const AuthLink = ({ href, children, className }: { href: string; children: any; className?: string }) => {
+  const { data: session } = useSession();
+
+  if (!session) return null;
+
+  return (
+    <Link href={href} className={className} prefetch={false}>
+      {children}
+    </Link>
+  );
+};
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/profile", label: "Profile" },
+    { href: "/about", label: "About" },
+  ];
 
   return (
     <div className="flex justify-between px-10 py-3 bg-black dark:bg-gray-800 text-white">
@@ -16,51 +37,50 @@ export default function Navbar() {
         <span className="text-lg font-semibold text-white">Feest Inc</span>
       </Link>
       <div className="hidden md:flex gap-4 ">
-        <Link href="/" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-          Home
-        </Link>        
-        <Link href="/dashboard" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-          Dashboard
-        </Link>   
-        <Link href="/profile" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-          Profile
-        </Link>    
-        <Link href="/about" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-          About
-        </Link> 
+        {status === "authenticated" && navLinks.map((link) => (
+          <AuthLink key={link.href} href={link.href} className="text-lg font-medium hover:underline underline-offset-4">
+            {link.label}
+          </AuthLink>
+        ))}
 
-        {session && (
-          <Link href={"/login"} className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-            <button onClick={() => signOut()}>Sign out</button>
+        {status === "authenticated" ? (
+          <button onClick={() => signOut()} className="text-lg font-medium hover:underline underline-offset-4">
+            Logout
+          </button>
+        ) : status === "unauthenticated" ? (
+          <Link href="/login" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
+            Login
           </Link>
+        ) : (
+          <span className="text-lg font-medium">Loading...</span>
         )}
       </div>
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="lg:hidden md:hidden">
+          <Button variant="outline" size="icon" className="lg:hidden md:hidden text-black">
             <MenuIcon className="h-6 w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
+          <SheetTitle>Feest</SheetTitle> 
           <div className="grid w-[200px] p-4 ">
-            <Link href="/" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-              Home
-            </Link>            
-            <Link href="/dashboard" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-              Dashboard
-            </Link>
-            <Link href="/profile" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-              Profile
-            </Link>
-            <Link href="/about" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-              About
-            </Link>
+            {status === "authenticated" && navLinks.map((link) => (
+              <AuthLink key={link.href} href={link.href} className="text-lg font-medium hover:underline underline-offset-4">
+                {link.label}
+              </AuthLink>
+            ))}
 
-            {session && (
-              <Link href={"/login"} className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
-                <button onClick={() => signOut()}>Sign out</button>
+            {status === "authenticated" ? (
+              <button onClick={() => signOut()} className="text-lg font-medium hover:underline underline-offset-4">
+                Sign out
+              </button>
+            ) : status === "unauthenticated" ? (
+              <Link href="/login" className="text-lg font-medium hover:underline underline-offset-4" prefetch={false}>
+                Login
               </Link>
+            ) : (
+              <span className="text-lg font-medium">Loading...</span>
             )}
           </div>
         </SheetContent>
@@ -68,6 +88,7 @@ export default function Navbar() {
     </div>
   );
 }
+
 
 function MenuIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
   return (

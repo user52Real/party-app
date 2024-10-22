@@ -10,6 +10,7 @@ const AboutPage = () => {
       <hr className="border-t border-white" />
       <header className="bg-black py-10">
         <div className="container mx-auto px-6">
+        <img src="/images/logo.png" alt="Logo" className="w-20 h-20 mx-auto mt-10 mb-10 bg-white" />
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-white text-center">
             About Our App
           </h1>          

@@ -28,7 +28,7 @@ interface UserData {
 }
 
 const fetchUserData = async (userId: string) => {
-  const response = await fetch(`/api/user/${userId}`);
+  const response = await fetch(`/api/users/${userId}`);
   if (!response.ok) {
     throw new Error(`Error fetching user data: ${response.status}`);
   }
@@ -117,8 +117,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-white text-center">
             Dashboard
           </h1>
-          <div className="flex items-center space-x-4">
-            <span>{session?.user?.name || ""} </span>
+          <div className="flex flex-col items-center space-x-4">            
             <Image
               src={session?.user?.image || "/placeholder.svg?height=32&width=32"}
               alt="Profile"
@@ -126,6 +125,9 @@ export default function Dashboard() {
               height={32}
               className="rounded-full"
             />
+            <button onClick={() => router.push("/profile")} className="text-white px-2 py-2 rounded-md">
+              <span>{session?.user?.name || ""} </span>
+            </button>
           </div>          
         </div>
       </header>
@@ -211,7 +213,7 @@ export default function Dashboard() {
       <footer className="bg-black py-6 mt-6">
         <div className="container mx-auto text-center">
           <p className="text-white text-sm">
-            &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+            © {new Date().getFullYear()} Shareflyt. All rights reserved.
           </p>
         </div>
       </footer>

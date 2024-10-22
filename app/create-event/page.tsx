@@ -17,8 +17,20 @@ export default function CreateEvent() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ [key: string]: string }>({});
+  const [eventData, setEventData] = useState({
+    name: '',
+    date: '',
+    guests: '',
+    budget: '',
+    location: ''
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEventData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError({});
@@ -29,20 +41,20 @@ export default function CreateEvent() {
       return;
     }
 
-    const newErrors: { [key: string]: string } = {};
-    if (!title.trim()) newErrors.title = "Title is required.";
-    if (!date.trim()) newErrors.date = "Date is required.";
-    if (!location.trim()) newErrors.location = "Location is required.";
-    if (!guests || isNaN(guests)) newErrors.guests = "Guests must be a valid number.";
-    if (!description.trim()) newErrors.description = "Description is required.";
+    // const newErrors: { [key: string]: string } = {};
+    // if (!title.trim()) newErrors.title = "Title is required.";
+    // if (!date.trim()) newErrors.date = "Date is required.";
+    // if (!location.trim()) newErrors.location = "Location is required.";
+    // if (!guests || isNaN(guests)) newErrors.guests = "Guests must be a valid number.";
+    // if (!description.trim()) newErrors.description = "Description is required.";
 
     
 
-    if (Object.keys(newErrors).length > 0) {
-      setError(newErrors);
-      setLoading(false);
-      return;
-    }
+    // if (Object.keys(newErrors).length > 0) {
+    //   setError(newErrors);
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       const response = await fetch("/api/parties", {
@@ -51,21 +63,19 @@ export default function CreateEvent() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: title,
-          date,
-          location,
-          guests,
-          budget: 0,
-          description,
-          userId: session.user.id,
+          ...eventData,
+          guests: parseInt(eventData.guests),
+          budget: parseInt(eventData.budget),
         }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to create event.");
       }
+      const data = await response.json();
+      //const eventId = data.id; 
 
-      router.push("/dashboard");
+      router.push(`/invite/${data.partyId}`);
     } catch (err: any) {
       console.error(err);
       setError({ general: err.message || "Something went wrong." });
@@ -111,48 +121,44 @@ export default function CreateEvent() {
                 </p>
               ))}
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          )}          
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="text"
-              placeholder="Event Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              name="name"
+              placeholder="Event Name"
+              value={eventData.name}
+              onChange={handleChange}
               required
-              className="text-lg border-gray-300 rounded-md w-full p-3 transition-shadow focus:ring-2 focus:ring-indigo-500"
             />
             <Input
               type="date"
-              placeholder="Event Date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              name="date"
+              value={eventData.date}
+              onChange={handleChange}
               required
-              className="text-lg border-gray-300 rounded-md w-full p-3 transition-shadow focus:ring-2 focus:ring-indigo-500"
             />
             <Input
               type="number"
+              name="guests"
               placeholder="Number of Guests"
-              value={guests}
-              onChange={(e) => setGuests(Number(e.target.value))}
+              value={eventData.guests}
+              onChange={handleChange}
               required
-              className="text-lg border-gray-300 rounded-md w-full p-3 transition-shadow focus:ring-2 focus:ring-indigo-500"
             />
             <Input
-              type="text"
-              placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              type="number"
+              name="budget"
+              placeholder="Budget"
+              value={eventData.budget}
+              onChange={handleChange}
               required
-              className="text-lg border-gray-300 rounded-md w-full p-3 transition-shadow focus:ring-2 focus:ring-indigo-500"
             />
             <Textarea
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              rows={5}
-              className="text-lg border-gray-300 rounded-md w-full p-3 transition-shadow focus:ring-2 focus:ring-indigo-500"
+              name="location"
+              placeholder="Location"
+              value={eventData.location}
+              onChange={handleChange}
             />
 
             <Button

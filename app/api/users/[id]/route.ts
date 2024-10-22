@@ -1,31 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+// import User from "@/models/User";
+// import Party from "@/models/Party"; 
 import User from "@/models/User";
-import Party from "@/models/Party"; 
+import Party from "@/models/Party";
+import { UserProfile, UserDashboardData } from '@/types/types';
 
-interface UserData {
-  totalParties: number;
-  partiesIncrease: number;
-  upcomingEvents: number;
-  nextEventIn: string;
-  totalGuests: number;
-  budgetUsed: string;
-  budgetUsedPercentage: string;
-  recentParties: {
-    id: string;
-    name: string;
-    date: string;
-    location: string;
-    guests: number;
-  }[];
-}
-
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  image: string;
-}
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -56,7 +36,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         .sort({ date: -1 })
         .limit(5);
 
-      const userData: UserData = {
+      const userData: UserDashboardData = {
         totalParties: user.totalParties ?? 0,
         partiesIncrease: user.partiesIncrease ?? 0,
         upcomingEvents: user.upcomingEvents ?? 0,

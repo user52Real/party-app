@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/db";
 import Party from "@/models/Party";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import User from "@/models/User";
+import { UserDashboardData } from '@/types/types';
 
 export async function GET() {
   try {
