@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Party from "@/models/Party";
-import User from "@/models/User";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     // Check if the guest is already invited
-    const existingGuest = party.guests.find((guest: { email: any; }) => guest.email === guestEmail);
+    const existingGuest = party.guests.find((guest: Guest) => guest.email === guestEmail);
     if (existingGuest) {
       return NextResponse.json({ error: "Guest already invited" }, { status: 400 });
     }
@@ -90,7 +89,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Party not found or you're not the owner" }, { status: 404 });
     }
 
-    const invitations = party.guests.map((guest: { _id: { toString: () => any; }; name: any; email: any; status: any; }) => ({
+    const invitations = party.guests.map((guest: { _id: { toString: () => string }, name: string, email: string, status: string }) => ({
       id: guest._id.toString(),
       name: guest.name,
       email: guest.email,
