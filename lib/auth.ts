@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { JWT } from "next-auth/jwt";
 import { LRUCache } from 'lru-cache';
 import CredentialsProvider from "next-auth/providers/credentials";
+import { Document } from 'mongoose';
 
 interface CustomToken extends JWT {
   id: string; 
@@ -39,7 +40,6 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      id: "credentials",
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
@@ -67,18 +67,18 @@ export const authOptions: NextAuthOptions = {
           console.log("User not in cache, querying database");
           const foundUser = await User.findOne({ email: credentials.email }).select("+password");
           if (foundUser) {
-            user = foundUser as UserDocument;
+            user = foundUser;
             const cachedUserData: CachedUser = {
-              _id: user._id.toString(),
-              email: user.email,
-              password: user.password,
-              name: user.name,
-              image: user.image
+              _id: user!._id.toString(),
+              email: user!.email,
+              password: user!.password,
+              name: user!.name,
+              image: user!.image
             };
             userCache.set(credentials.email, cachedUserData);
           }
         } else {
-          user = cachedUser as UserDocument;
+          user = cachedUser as unknown as UserDocument;
         }
 
         if (!user) {
@@ -96,17 +96,18 @@ export const authOptions: NextAuthOptions = {
 
         console.log("Authorization successful");
         return {
-          id: user._id,
+          id: user._id.toString(),
           email: user.email,
           name: user.name,
           image: user.image || "/placeholder.svg?height=32&width=32", 
         };
-      }    }),
+      }
+    }),
   ],
   callbacks: {
     async session({ session, token }) {
       const customToken = token as CustomToken;
-      if (customToken) {
+      if (customToken && session.user) {
         session.user.id = customToken.id; 
       }
       return session;
