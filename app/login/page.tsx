@@ -29,9 +29,9 @@ export default function Login() {
 
         try {
             const res = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
+              email: formData.get("email") as string,
+              password: formData.get("password") as string,
+              redirect: false,
             });
             if (res?.error) {
                 setError("Invalid email or password");
