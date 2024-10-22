@@ -123,4 +123,9 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: '/login',  
+    signOut: '/',      
+    error: '/auth/error', 
+  },
 };

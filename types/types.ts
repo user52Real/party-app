@@ -71,3 +71,10 @@ export interface Guest {
   email: string;
   status: string;
 }
+
+export interface RegisterValues {
+  email: string;
+  password: string;
+  name: string;
+  redirect?: boolean;
+}

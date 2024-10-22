@@ -82,7 +82,7 @@ export default function Profile() {
   }
 
   if (status === "unauthenticated") {
-    router.push("/auth/signin");
+    router.push("/login");
     return null;
   }
 

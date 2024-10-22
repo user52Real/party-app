@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized access. Please log in." }, { status: 401 });
     }
 
     await connectDB();
@@ -17,13 +17,17 @@ export async function GET(request: NextRequest) {
     const partyId = request.nextUrl.searchParams.get("id");
     const userId = session.user.id;
 
+    if (!partyId) {
+      return NextResponse.json({ error: "Party ID is missing in the request." }, { status: 400 });
+    }
+
     const party = await Party.findOne({
-      _id: new mongoose.Types.ObjectId(partyId!),
+      _id: new mongoose.Types.ObjectId(partyId),
       userId: new mongoose.Types.ObjectId(userId)
     });
 
     if (!party) {
-      return NextResponse.json({ error: "Party not found" }, { status: 404 });
+      return NextResponse.json({ error: "Party not found or you are not the owner." }, { status: 404 });
     }
 
     const formattedParty = {
@@ -36,8 +40,8 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(formattedParty);
-  } catch (error) {
-    console.error("Error fetching party:", error);
-    return NextResponse.json({ error: "Failed to fetch party." }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Error fetching party:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "An unexpected error occurred while fetching the party." }, { status: 500 });
   }
 }

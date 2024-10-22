@@ -11,10 +11,19 @@ export default function Register() {
   const ref = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (formData: FormData) => {
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const name = formData.get("name");
+
+    if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
+      setError("Invalid form data");
+      return;
+    }
+
     const r = await register({
-        email: formData.get("email"),
-        password: formData.get("password"),
-        name: formData.get("name"),
+        email,
+        password,
+        name,
         redirect: false,    
       });
       ref.current?.reset();

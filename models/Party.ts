@@ -8,6 +8,11 @@ export interface PartyDocument extends Document {
   budget: number;
   location?: string;
   userId: mongoose.Types.ObjectId; 
+  guestList: {
+    name: string;
+    email: string;
+    status: string;
+  }[]
 }
 
 const PartySchema = new Schema<PartyDocument>({
@@ -36,6 +41,11 @@ const PartySchema = new Schema<PartyDocument>({
     ref: "User", 
     required: true,
   },
+  guestList: [{ 
+    name: String,
+    email: String,
+    status: String
+  }],
 });
 
 const Party = mongoose.models.Party || model<PartyDocument>("Party", PartySchema);

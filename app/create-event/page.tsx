@@ -10,13 +10,10 @@ import { useSession } from "next-auth/react";
 export default function CreateEvent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  // const [title, setTitle] = useState("");
-  // const [date, setDate] = useState("");
-  // const [location, setLocation] = useState("");
-  // const [guests, setGuests] = useState<number | undefined>(undefined);
-  // const [description, setDescription] = useState("");
+  
+  // Form state and loading/error states
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<{ [key: string]: string }>({});
+  const [error, setError] = useState<string | null>(null);
   const [eventData, setEventData] = useState({
     name: '',
     date: '',
@@ -25,37 +22,45 @@ export default function CreateEvent() {
     location: ''
   });
 
+  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEventData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Form submission handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setError({});
+    setError(null);
 
     if (!session?.user?.id) {
-      setError({ general: "User is not authenticated." });
+      setError("User is not authenticated.");
       setLoading(false);
       return;
     }
 
-    // const newErrors: { [key: string]: string } = {};
-    // if (!title.trim()) newErrors.title = "Title is required.";
-    // if (!date.trim()) newErrors.date = "Date is required.";
-    // if (!location.trim()) newErrors.location = "Location is required.";
-    // if (!guests || isNaN(guests)) newErrors.guests = "Guests must be a valid number.";
-    // if (!description.trim()) newErrors.description = "Description is required.";
+    // Client-side form validation
+    const { name, date, guests, budget, location } = eventData;
+    if (!name || !date || !guests || !budget || !location) {
+      setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
 
-    
+    if (isNaN(Number(guests)) || Number(guests) <= 0) {
+      setError("Guests must be a valid positive number.");
+      setLoading(false);
+      return;
+    }
 
-    // if (Object.keys(newErrors).length > 0) {
-    //   setError(newErrors);
-    //   setLoading(false);
-    //   return;
-    // }
+    if (isNaN(Number(budget)) || Number(budget) <= 0) {
+      setError("Budget must be a valid positive number.");
+      setLoading(false);
+      return;
+    }
 
+    // Submit data to the backend
     try {
       const response = await fetch("/api/parties", {
         method: "POST",
@@ -70,24 +75,24 @@ export default function CreateEvent() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create event.");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create event.");
       }
-      const data = await response.json();
-      //const eventId = data.id; 
 
+      const data = await response.json();
       router.push(`/invite/${data.partyId}`);
     } catch (err: unknown) {
-      console.error(err);
       if (err instanceof Error) {
-        setError({ general: err.message || "Something went wrong." });
+        setError(err.message);
       } else {
-        setError({ general: "An unexpected error occurred." });
+        setError("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle session status
   if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -97,7 +102,7 @@ export default function CreateEvent() {
   }
 
   if (status === "unauthenticated") {
-    router.push("/auth/signin");
+    router.push("/login");
     return null;
   }
 
@@ -114,18 +119,16 @@ export default function CreateEvent() {
       
       <main className="container mx-auto px-6 py-10 flex-grow">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-          {Object.keys(error).length > 0 && (
+          
+          {error && (
             <div
               role="alert"
               className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
             >
-              {Object.values(error).map((msg, index) => (
-                <p key={index} className="font-semibold">
-                  {msg}
-                </p>
-              ))}
+              <p className="font-semibold">{error}</p>
             </div>
-          )}          
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="text"
@@ -163,6 +166,7 @@ export default function CreateEvent() {
               placeholder="Location"
               value={eventData.location}
               onChange={handleChange}
+              required
             />
 
             <Button
@@ -202,7 +206,7 @@ export default function CreateEvent() {
 
       <footer className="bg-black py-6">
         <div className="container mx-auto text-center text-white">
-          &copy; {new Date().getFullYear()} Shareflyt. All rights reserved.
+          &copy; {new Date().getFullYear()} Feest. All rights reserved.
         </div>
       </footer>
     </div>
