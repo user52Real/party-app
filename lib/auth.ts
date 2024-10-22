@@ -4,10 +4,20 @@ import type { NextAuthOptions } from "next-auth";
 import credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { JWT } from "next-auth/jwt";
+import { LRUCache } from 'lru-cache';
 
 interface CustomToken extends JWT {
   id: string; 
 }
+
+// Establish database connection when server starts
+connectDB().catch(console.error);
+
+// Simple in-memory cache for user data
+const userCache = new LRUCache<string, any>({ max: 100, ttl: 1000 * 60 * 5 }); // 5 minutes TTL
+
+// Simple rate limiting
+const loginAttempts = new Map<string, { count: number, lastAttempt: number }>();
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,26 +29,51 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await connectDB();
-        const user = await User.findOne({
-            email: credentials?.email,
-        }).select("+password");
+        console.log("Starting authorization process");
         
-        if (!user) throw new Error("Wrong Email");
-        
-        const passwordMatch = await bcrypt.compare(
-            credentials!.password,
-            user.password
-        );
-    
-        if (!passwordMatch) throw new Error("Wrong Password");
-        
-        // Return user data including ID
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+
+        // Rate limiting
+        const now = Date.now();
+        const attempt = loginAttempts.get(credentials.email) || { count: 0, lastAttempt: 0 };
+        if (now - attempt.lastAttempt < 60000 && attempt.count >= 5) { // 1 minute, 5 attempts
+          throw new Error("Too many login attempts. Please try again later.");
+        }
+        loginAttempts.set(credentials.email, { count: attempt.count + 1, lastAttempt: now });
+
+        // Check cache first
+        const cachedUser = userCache.get(credentials.email);
+        let user = cachedUser;
+
+        if (!user) {
+          console.log("User not in cache, querying database");
+          user = await User.findOne({ email: credentials.email }).select("+password");
+          if (user) {
+            userCache.set(credentials.email, user);
+          }
+        }
+
+        if (!user) {
+          console.log("User not found");
+          throw new Error("Invalid email or password");
+        }
+
+        console.log("Comparing passwords");
+        const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+
+        if (!passwordMatch) {
+          console.log("Password mismatch");
+          throw new Error("Invalid email or password");
+        }
+
+        console.log("Authorization successful");
         return {
-            id: user._id,
-            email: user.email,
-            name: user.name,
-            image: user.image || "/placeholder.svg?height=32&width=32", 
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          image: user.image || "/placeholder.svg?height=32&width=32", 
         };
       }
     }),
@@ -46,17 +81,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, token }) {
       const customToken = token as CustomToken;
-
       if (customToken) {
-          session.user.id = customToken.id; 
+        session.user.id = customToken.id; 
       }
       return session;
     },
     async jwt({ token, user }) {
       const customToken = token as CustomToken;
-
       if (user) {
-          customToken.id = user.id; 
+        customToken.id = user.id; 
       }
       return customToken;
     },
