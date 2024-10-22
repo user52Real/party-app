@@ -5,6 +5,7 @@ import credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { JWT } from "next-auth/jwt";
 import { LRUCache } from 'lru-cache';
+import CredentialsProvider from "next-auth/providers/credentials";
 
 interface CustomToken extends JWT {
   id: string; 
@@ -37,7 +38,7 @@ const loginAttempts = new Map<string, { count: number, lastAttempt: number }>();
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    credentials({
+    CredentialsProvider({
       name: "Credentials",
       id: "credentials",
       credentials: {

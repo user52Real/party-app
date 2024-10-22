@@ -39,7 +39,7 @@ export default function Login() {
                 router.push("/");
             }
         } catch (error) {
-            setError(`${error}An unexpected error occurred. Please try again.`);
+            setError(`${error} An unexpected error occurred. Please try again.`);
         } finally {
             setIsLoading(false);
         }
