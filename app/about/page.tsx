@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Assuming you're using ShadCN's Card component
-import { Button } from "@/components/ui/button"; // Assuming you have a reusable Button component
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; 
+import { Button } from "@/components/ui/button"; 
 
 const AboutPage = () => {
   return (

@@ -17,7 +17,7 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ eventId }) => {
   const handleEmailInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/invitations', {
+      const response = await fetch(`/api/events/${eventId}/invitations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, message }),
@@ -35,10 +35,10 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ eventId }) => {
   };
 
   const handleFacebookInvite = () => {
-    // @ts-expect-error
+    // @ts-expect-error: Facebook SDK is not properly typed, but this method is necessary for functionality
     FB.ui({
       method: 'apprequests',
-      message: 'Join my party!',
+      message: `Join me at event #${eventId}: Join my party!`,
     }, (response: FacebookResponse) => {
       if (response.request && !response.error) {
         alert('Invitation sent successfully!');
@@ -75,7 +75,7 @@ const InvitationForm: React.FC<InvitationFormProps> = ({ eventId }) => {
           onClick={handleFacebookInvite} 
           className="w-full bg-blue-400 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition-all duration-300"
         >
-          Invite via Facebook
+          Invite via Facebook for Event #{eventId}
         </Button>
       </form>
     </div>

@@ -68,7 +68,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -100,7 +100,7 @@ export async function GET(req: Request) {
 }
 
 async function updateUserStatistics(userId: string, newParty: PartyDocument) {
-  const user = await User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     userId,
     {
       $inc: {

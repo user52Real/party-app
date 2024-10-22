@@ -5,7 +5,6 @@ import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/s
 import { Button } from "@/components/ui/button";
 import { JSX, SVGProps } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { AuthLinkProps } from "@/types/types";
 
 const AuthLink = ({ href, children, className }: AuthLinkProps) => {
