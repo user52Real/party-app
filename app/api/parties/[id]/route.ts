@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Party from "@/models/Party";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -14,11 +14,11 @@ export async function GET({ params }: { params: { id: string } }) {
 
     await connectDB();
 
-    const partyId = params.id;
+    const partyId = request.nextUrl.searchParams.get("id");
     const userId = session.user.id;
 
     const party = await Party.findOne({
-      _id: new mongoose.Types.ObjectId(partyId),
+      _id: new mongoose.Types.ObjectId(partyId!),
       userId: new mongoose.Types.ObjectId(userId)
     });
 
