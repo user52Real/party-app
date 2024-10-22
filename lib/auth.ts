@@ -10,11 +10,27 @@ interface CustomToken extends JWT {
   id: string; 
 }
 
+interface UserDocument extends Document {
+  _id: string;
+  email: string;
+  password: string;
+  name: string;
+  image?: string;
+}
+
+type CachedUser = {
+  _id: string;
+  email: string;
+  password: string;
+  name: string;
+  image?: string;
+};
+
 // Establish database connection when server starts
 connectDB().catch(console.error);
 
 // Simple in-memory cache for user data
-const userCache = new LRUCache<string, any>({ max: 100, ttl: 1000 * 60 * 5 }); // 5 minutes TTL
+const userCache = new LRUCache<string, CachedUser>({ max: 100, ttl: 1000 * 60 * 5 }); // 5 minutes TTL
 
 // Simple rate limiting
 const loginAttempts = new Map<string, { count: number, lastAttempt: number }>();
@@ -45,14 +61,24 @@ export const authOptions: NextAuthOptions = {
 
         // Check cache first
         const cachedUser = userCache.get(credentials.email);
-        let user = cachedUser;
+        let user: UserDocument | null = null;
 
-        if (!user) {
+        if (!cachedUser) {
           console.log("User not in cache, querying database");
-          user = await User.findOne({ email: credentials.email }).select("+password");
-          if (user) {
-            userCache.set(credentials.email, user);
+          const foundUser = await User.findOne({ email: credentials.email }).select("+password");
+          if (foundUser) {
+            user = foundUser as UserDocument;
+            const cachedUserData: CachedUser = {
+              _id: user._id.toString(),
+              email: user.email,
+              password: user.password,
+              name: user.name,
+              image: user.image
+            };
+            userCache.set(credentials.email, cachedUserData);
           }
+        } else {
+          user = cachedUser as UserDocument;
         }
 
         if (!user) {
@@ -75,8 +101,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image || "/placeholder.svg?height=32&width=32", 
         };
-      }
-    }),
+      }    }),
   ],
   callbacks: {
     async session({ session, token }) {

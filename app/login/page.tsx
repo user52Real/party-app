@@ -39,7 +39,7 @@ export default function Login() {
                 router.push("/");
             }
         } catch (error) {
-            setError("An unexpected error occurred. Please try again.");
+            setError(`${error}An unexpected error occurred. Please try again.`);
         } finally {
             setIsLoading(false);
         }
@@ -99,7 +99,7 @@ export default function Login() {
                     href="/register"
                     className="text-md text-white transition duration-150 ease hover:text-black placeholder:text-black"
                 >
-                    Don't have an account?
+                    Do not have an account?
                 </Link>
             </form>
         </section>
