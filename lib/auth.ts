@@ -6,10 +6,9 @@ import { JWT } from "next-auth/jwt";
 import { LRUCache } from 'lru-cache';
 import CredentialsProvider from "next-auth/providers/credentials";
 import { Document, Types } from 'mongoose';
-import Tokens from 'csrf';
 import pino from 'pino';
 
-const tokens = new Tokens();
+
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
 interface CustomToken extends JWT {
