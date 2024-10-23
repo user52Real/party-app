@@ -30,8 +30,8 @@ export default function Login() {
 
         try {
             const res = await signIn("credentials", {
-                email: formData.get("email") as string,
-                password: formData.get("password") as string,
+                email,
+                password,
                 redirect: false,
             });
             
@@ -41,7 +41,7 @@ export default function Login() {
                 router.push("/dashboard");
             }
         } catch (error) {
-            setError(`An unexpected error occurred. Please try again.`);
+            setError(`${error}An unexpected error occurred. Please try again.`);
         } finally {
             setIsLoading(false);
         }

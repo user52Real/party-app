@@ -1,13 +1,6 @@
 ================================================================
 File Summary
 ================================================================
-
-Purpose:
---------
-This file contains a packed representation of the entire repository's contents.
-It is designed to be easily consumable by AI systems for analysis, code review,
-or other automated processes.
-
 File Format:
 ------------
 The content is organized as follows:
@@ -20,6 +13,7 @@ The content is organized as follows:
   c. Another separator line
   d. The full contents of the file
   e. A blank line
+
 
 ================================================================
 Repository Structure
@@ -78,6 +72,7 @@ lib/
   db.ts
   email.ts
   middleware.ts
+  rateLimiter.ts
   utils.ts
 models/
   ActivityLog.ts
@@ -90,6 +85,7 @@ types/
 .eslintrc.json
 .gitignore
 components.json
+global.d.ts
 next.config.mjs
 package.json
 postcss.config.mjs
@@ -313,8 +309,8 @@ export async function POST(req: Request) {
     await sendInvitationEmail(guestEmail, guestName, party.name);
 
     return NextResponse.json({ message: "Invitation sent successfully." }, { status: 201 });
-  } catch (error: unknown) {
-    console.error("Error creating invitation:", error instanceof Error ? error.message : String(error));
+  } catch (error) {
+    console.error("Error creating invitation:", error);
     return NextResponse.json({ error: "An unexpected error occurred while creating the invitation. Please try again." }, { status: 500 });
   }
 }
@@ -353,8 +349,8 @@ export async function GET(req: Request) {
     }));
 
     return NextResponse.json(invitations);
-  } catch (error: unknown) {
-    console.error("Error fetching invitations:", error instanceof Error ? error.message : String(error));
+  } catch (error) {
+    console.error("Error fetching invitations:", error);
     return NextResponse.json({ error: "An unexpected error occurred while fetching the invitations." }, { status: 500 });
   }
 }
@@ -379,7 +375,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const partyId = request.nextUrl.searchParams.get("id");
-    const userId = session.user.id;
+    const userId = session.user!.id;
 
     if (!partyId) {
       return NextResponse.json({ error: "Party ID is missing in the request." }, { status: 400 });
@@ -395,12 +391,12 @@ export async function GET(request: NextRequest) {
     }
 
     const formattedParty = {
-      id: party._id.toString(),
-      name: party.name,
-      date: party.date.toISOString(),
-      guests: party.guests,
-      budget: party.budget,
-      location: party.location || ""
+      id: party!._id.toString(),
+      name: party!.name,
+      date: party!.date.toISOString(),
+      guests: party!.guests,
+      budget: party!.budget,
+      location: party!.location || ""
     };
 
     return NextResponse.json(formattedParty);
@@ -433,7 +429,7 @@ export async function POST(req: Request) {
     }
 
     const partyData = await req.json();
-    const userId = session.user.id;
+    const userId = session!.user!.id;
 
     const validationError = validatePartyInput(partyData);
     if (validationError) {
@@ -477,15 +473,15 @@ export async function GET() {
       .limit(6);
 
     const formattedParties = parties.map(party => ({
-        id: party._id.toString(),
-        name: party.name,
-        date: party.date.toISOString(),
-        guestCount: party.guests, 
-        guestList: party.guestList ? party.guestList.map((guest: Guest) => ({
-          id: guest._id.toString(),
-          name: guest.name,
-          email: guest.email,
-          status: guest.status
+        id: party!._id.toString(),
+        name: party!.name,
+        date: party!.date.toISOString(),
+        guestCount: party!.guests, 
+        guestList: party!.guestList ? party.guestList.map((guest: Guest) => ({
+          id: guest!._id.toString(),
+          name: guest!.name,
+          email: guest!.email,
+          status: guest!.status
         })) : [],
         budget: party.budget,
         location: party.location
@@ -504,10 +500,10 @@ async function updateUserStatistics(userId: string, newParty: PartyDocument) {
       {
         $inc: {
           totalParties: 1,
-          totalGuests: newParty.guests,
+          totalGuests: newParty!.guests,
         },
         $set: {
-          lastParty: newParty._id,
+          lastParty: newParty!._id,
         },
       },
       { new: true }
@@ -546,10 +542,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (profileRequest) {
       // Return profile data
       const userProfile: UserProfile = {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || '',
-        image: user.image || '',
+        name: user!.name,
+        email: user!.email,
+        phone: user!.phone || '',
+        image: user!.image || '',
       };
       return NextResponse.json(userProfile, { status: 200 });
     } else {
@@ -559,19 +555,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         .limit(5);
 
       const userData: UserDashboardData = {
-        totalParties: user.totalParties ?? 0,
-        partiesIncrease: user.partiesIncrease ?? 0,
-        upcomingEvents: user.upcomingEvents ?? 0,
-        nextEventIn: user.nextEventIn ?? "",
-        totalGuests: user.totalGuests ?? 0,
-        budgetUsed: user.budgetUsed ?? "",
-        budgetUsedPercentage: user.budgetUsedPercentage ?? "",
+        totalParties: user!.totalParties ?? 0,
+        partiesIncrease: user!.partiesIncrease ?? 0,
+        upcomingEvents: user!.upcomingEvents ?? 0,
+        nextEventIn: user!.nextEventIn ?? "",
+        totalGuests: user!.totalGuests ?? 0,
+        budgetUsed: user!.budgetUsed ?? "",
+        budgetUsedPercentage: user!.budgetUsedPercentage ?? "",
         recentParties: recentParties.map(party => ({
-          id: party._id.toString(),
-          name: party.name,
-          date: party.date.toISOString().split('T')[0],
-          location: party.location || "", 
-          guests: party.guests
+          id: party!._id.toString(),
+          name: party!.name,
+          date: party!.date.toISOString().split('T')[0],
+          location: party!.location || "", 
+          guests: party!.guests
         }))
       };
       return NextResponse.json(userData, { status: 200 });
@@ -604,10 +600,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const updatedProfile: UserProfile = {
-      name: user.name,
-      email: user.email,
-      phone: user.phone || '',
-      image: user.image || '',
+      name: user!.name,
+      email: user!.email,
+      phone: user!.phone || '',
+      image: user!.image || '',
     };
 
     return NextResponse.json(updatedProfile, { status: 200 });
@@ -620,14 +616,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 ================
 File: app/api/users/stats/route.ts
 ================
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import Party from "@/models/Party";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
-  try {
+export async function GET(_req: NextRequest) {
+  try {    
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -1222,14 +1218,10 @@ export default function Login() {
         event.preventDefault();
         setIsLoading(true);
         setError("");
+
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-
-        if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
-            setError("Invalid form data");
-            return;
-        }
 
         if (!email || !password) {
             setError("Please fill in all fields");
@@ -1239,17 +1231,18 @@ export default function Login() {
 
         try {
             const res = await signIn("credentials", {
-              email: formData.get("email") as string,
-              password: formData.get("password") as string,
-              redirect: false,
+                email,
+                password,
+                redirect: false,
             });
+            
             if (res?.error) {
-                setError("Invalid email or password");
+                setError(res.error);
             } else if (res?.ok) {
                 router.push("/dashboard");
             }
         } catch (error) {
-            setError(`${error} An unexpected error occurred. Please try again.`);
+            setError(`${error}An unexpected error occurred. Please try again.`);
         } finally {
             setIsLoading(false);
         }
@@ -2653,62 +2646,67 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Starting authorization process");
-        
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
-        }
-
-        // Rate limiting
-        const now = Date.now();
-        const attempt = loginAttempts.get(credentials.email) || { count: 0, lastAttempt: 0 };
-        if (now - attempt.lastAttempt < 60000 && attempt.count >= 5) { // 1 minute, 5 attempts
-          throw new Error("Too many login attempts. Please try again later.");
-        }
-        loginAttempts.set(credentials.email, { count: attempt.count + 1, lastAttempt: now });
-
-        // Check cache first
-        const cachedUser = userCache.get(credentials.email);
-        let user: UserDocument | null = null;
-
-        if (!cachedUser) {
-          console.log("User not in cache, querying database");
-          const foundUser = await User.findOne({ email: credentials.email }).select("+password");
-          if (foundUser) {
-            user = foundUser;
-            const cachedUserData: CachedUser = {
-              _id: user!._id.toString(),
-              email: user!.email,
-              password: user!.password,
-              name: user!.name,
-              image: user!.image
-            };
-            userCache.set(credentials.email, cachedUserData);
+        try {
+          console.log("Starting authorization process");
+          
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Email and password are required");
           }
-        } else {
-          user = cachedUser as unknown as UserDocument;
+
+          // Rate limiting
+          const now = Date.now();
+          const attempt = loginAttempts.get(credentials.email) || { count: 0, lastAttempt: 0 };
+          if (now - attempt.lastAttempt < 60000 && attempt.count >= 5) { // 1 minute, 5 attempts
+            throw new Error("Too many login attempts. Please try again later.");
+          }
+          loginAttempts.set(credentials.email, { count: attempt.count + 1, lastAttempt: now });
+
+          // Check cache first
+          const cachedUser = userCache.get(credentials.email);
+          let user: UserDocument | null = null;
+
+          if (!cachedUser) {
+            console.log("User not in cache, querying database");
+            const foundUser = await User.findOne({ email: credentials.email }).select("+password");
+            if (foundUser) {
+              user = foundUser;
+              const cachedUserData: CachedUser = {
+                _id: user!._id.toString(),
+                email: user!.email,
+                password: user!.password,
+                name: user!.name,
+                image: user!.image
+              };
+              userCache.set(credentials.email, cachedUserData);
+            }
+          } else {
+            user = cachedUser as unknown as UserDocument;
+          }
+
+          if (!user) {
+            console.log("User not found");
+            throw new Error("Invalid email or password");
+          }
+
+          console.log("Comparing passwords");
+          const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+
+          if (!passwordMatch) {
+            console.log("Password mismatch");
+            throw new Error("Invalid email or password");
+          }
+
+          console.log("Authorization successful");
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            image: user.image || "/placeholder.svg?height=32&width=32", 
+          };
+        } catch (error) {
+          console.error("Authorization error:", error);
+          throw new Error(JSON.stringify({ error: "An unexpected error occurred during authorization." }));
         }
-
-        if (!user) {
-          console.log("User not found");
-          throw new Error("Invalid email or password");
-        }
-
-        console.log("Comparing passwords");
-        const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-
-        if (!passwordMatch) {
-          console.log("Password mismatch");
-          throw new Error("Invalid email or password");
-        }
-
-        console.log("Authorization successful");
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          image: user.image || "/placeholder.svg?height=32&width=32", 
-        };
       }
     }),
   ],
@@ -2760,16 +2758,29 @@ import mongoose from "mongoose";
 
 const { MONGODB_URI } = process.env;
 
+declare global {
+  var mongoose: {
+    conn: typeof import("mongoose") | null;
+    promise: Promise<typeof import("mongoose")> | null;
+  };
+}
+
+if (!global.mongoose) {
+  global.mongoose = { conn: null, promise: null };
+}
+
 export const connectDB = async () => {
-  try {
-    const { connection } = await mongoose.connect(MONGODB_URI as string);
-    if (connection.readyState === 1) {
-      return Promise.resolve(true);
-    }
-  } catch (error) {
-    console.error(error);
-    return Promise.reject(error);
+  if (global.mongoose.conn) {
+    return global.mongoose.conn;
   }
+
+  if (!global.mongoose.promise) {
+    global.mongoose.promise = mongoose.connect(MONGODB_URI as string).then((mongoose) => {
+      return mongoose;
+    });
+  }
+  global.mongoose.conn = await global.mongoose.promise;
+  return global.mongoose.conn;
 };
 
 ================
@@ -2814,6 +2825,7 @@ File: lib/middleware.ts
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import rateLimiter from './rateLimiter';
 
 export async function validateSession() {
   const session = await getServerSession(authOptions);
@@ -2821,6 +2833,44 @@ export async function validateSession() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return session;
+}
+
+export async function withProtection(req: Request) {
+  // Rate limiting check
+  const rateLimitResult = await rateLimiter(req);
+  if (rateLimitResult) return rateLimitResult;
+  
+  // Session validation
+  const session = await validateSession();
+  if ('error' in session) return session;
+  
+  return null;
+}
+
+================
+File: lib/rateLimiter.ts
+================
+import { LRUCache } from 'lru-cache';
+import { NextResponse } from 'next/server';
+
+const rateLimit = new LRUCache({
+  max: 500,
+  ttl: 60_000, // 1 minute
+});
+
+export default async function rateLimiter(req: Request) {
+  const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+  const tokenCount = rateLimit.get(ip) || 0;
+
+  if (typeof tokenCount === 'number' && tokenCount > 10) {
+    return NextResponse.json(
+      { error: 'Too many requests, please try again later.' },
+      { status: 429 }
+    );
+  }
+
+  rateLimit.set(ip, (typeof tokenCount === 'number' ? tokenCount : 0) + 1);
+  return null;
 }
 
 ================
@@ -2873,11 +2923,11 @@ export async function updateUserStatistics(userId: string, party: PartyDocument)
       throw new Error("User not found");
     }
 
-    user.totalParties = (user.totalParties || 0) + 1;
-    user.totalGuests = (user.totalGuests || 0) + (Array.isArray(party.guests) ? party.guests.length : party.guests || 0);
-    user.totalBudget = (user.totalBudget || 0) + party.budget;
+    user!.totalParties = (user.totalParties || 0) + 1;
+    user!.totalGuests = (user.totalGuests || 0) + (Array.isArray(party.guests) ? party.guests.length : party.guests || 0);
+    user!.totalBudget = (user.totalBudget || 0) + party.budget;
 
-    if (!user.lastPartyDate || new Date(party.date) > new Date(user.lastPartyDate)) {
+    if (!user!.lastPartyDate || new Date(party.date) > new Date(user.lastPartyDate)) {
       user.lastPartyDate = party.date;
     }
 
@@ -2913,8 +2963,6 @@ export function generateUniqueInviteCode(): string {
 export function calculatePartyDuration(startTime: Date, endTime: Date): number {
   return (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60); // Duration in hours
 }
-
-// Add more utility functions as needed
 
 ================
 File: models/ActivityLog.ts
@@ -3280,6 +3328,21 @@ File: components.json
 }
 
 ================
+File: global.d.ts
+================
+declare namespace NodeJS {
+    interface Global {
+      mongoose: {
+        conn: typeof import("mongoose") | null;
+        promise: Promise<typeof import("mongoose")> | null;
+      };
+    }
+  }
+  
+  // Ensure this file is included in your TypeScript compilation
+  export {};
+
+================
 File: next.config.mjs
 ================
 /** @type {import('next').NextConfig} */
@@ -3320,6 +3383,7 @@ File: package.json
     "mongoose": "^8.7.1",
     "next": "14.2.14",
     "next-auth": "^4.24.8",
+    "pino": "^9.5.0",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.3.0",
@@ -3486,6 +3550,6 @@ File: tsconfig.json
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "global.d.ts"],
   "exclude": ["node_modules"]
 }
