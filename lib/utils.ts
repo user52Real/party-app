@@ -13,7 +13,7 @@ export function validateEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-export function validatePartyInput(partyData: any): string | null {
+export function validatePartyInput(partyData: PartyDocument): string | null {
   if (!partyData.name) {
     return "Name is required";
   }
