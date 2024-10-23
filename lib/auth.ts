@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 import { JWT } from "next-auth/jwt";
 import { LRUCache } from 'lru-cache';
 import CredentialsProvider from "next-auth/providers/credentials";
-import { Document, Types } from 'mongoose';
 import pino from 'pino';
 
 
