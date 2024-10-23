@@ -15,14 +15,6 @@ interface CustomToken extends JWT {
   id: string;
 }
 
-interface UserDocument extends Document {
-  _id: Types.ObjectId;
-  email: string;
-  password: string;
-  name: string;
-  image?: string;
-}
-
 type CachedUser = {
   _id: string;
   email: string;
