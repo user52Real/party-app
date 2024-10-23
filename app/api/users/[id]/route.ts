@@ -24,10 +24,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (profileRequest) {
       // Return profile data
       const userProfile: UserProfile = {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || '',
-        image: user.image || '',
+        name: user!.name,
+        email: user!.email,
+        phone: user!.phone || '',
+        image: user!.image || '',
       };
       return NextResponse.json(userProfile, { status: 200 });
     } else {
@@ -37,19 +37,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         .limit(5);
 
       const userData: UserDashboardData = {
-        totalParties: user.totalParties ?? 0,
-        partiesIncrease: user.partiesIncrease ?? 0,
-        upcomingEvents: user.upcomingEvents ?? 0,
-        nextEventIn: user.nextEventIn ?? "",
-        totalGuests: user.totalGuests ?? 0,
-        budgetUsed: user.budgetUsed ?? "",
-        budgetUsedPercentage: user.budgetUsedPercentage ?? "",
+        totalParties: user!.totalParties ?? 0,
+        partiesIncrease: user!.partiesIncrease ?? 0,
+        upcomingEvents: user!.upcomingEvents ?? 0,
+        nextEventIn: user!.nextEventIn ?? "",
+        totalGuests: user!.totalGuests ?? 0,
+        budgetUsed: user!.budgetUsed ?? "",
+        budgetUsedPercentage: user!.budgetUsedPercentage ?? "",
         recentParties: recentParties.map(party => ({
-          id: party._id.toString(),
-          name: party.name,
-          date: party.date.toISOString().split('T')[0],
-          location: party.location || "", 
-          guests: party.guests
+          id: party!._id.toString(),
+          name: party!.name,
+          date: party!.date.toISOString().split('T')[0],
+          location: party!.location || "", 
+          guests: party!.guests
         }))
       };
       return NextResponse.json(userData, { status: 200 });
@@ -82,10 +82,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const updatedProfile: UserProfile = {
-      name: user.name,
-      email: user.email,
-      phone: user.phone || '',
-      image: user.image || '',
+      name: user!.name,
+      email: user!.email,
+      phone: user!.phone || '',
+      image: user!.image || '',
     };
 
     return NextResponse.json(updatedProfile, { status: 200 });

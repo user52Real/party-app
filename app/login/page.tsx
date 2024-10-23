@@ -17,14 +17,10 @@ export default function Login() {
         event.preventDefault();
         setIsLoading(true);
         setError("");
+
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
-
-        if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string') {
-            setError("Invalid form data");
-            return;
-        }
 
         if (!email || !password) {
             setError("Please fill in all fields");
@@ -34,17 +30,18 @@ export default function Login() {
 
         try {
             const res = await signIn("credentials", {
-              email: formData.get("email") as string,
-              password: formData.get("password") as string,
-              redirect: false,
+                email: formData.get("email") as string,
+                password: formData.get("password") as string,
+                redirect: false,
             });
+            
             if (res?.error) {
-                setError("Invalid email or password");
+                setError(res.error);
             } else if (res?.ok) {
                 router.push("/dashboard");
             }
         } catch (error) {
-            setError(`${error} An unexpected error occurred. Please try again.`);
+            setError(`An unexpected error occurred. Please try again.`);
         } finally {
             setIsLoading(false);
         }

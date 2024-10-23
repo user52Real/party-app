@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     const partyData = await req.json();
-    const userId = session.user.id;
+    const userId = session!.user!.id;
 
     const validationError = validatePartyInput(partyData);
     if (validationError) {
@@ -62,15 +62,15 @@ export async function GET() {
       .limit(6);
 
     const formattedParties = parties.map(party => ({
-        id: party._id.toString(),
-        name: party.name,
-        date: party.date.toISOString(),
-        guestCount: party.guests, 
-        guestList: party.guestList ? party.guestList.map((guest: Guest) => ({
-          id: guest._id.toString(),
-          name: guest.name,
-          email: guest.email,
-          status: guest.status
+        id: party!._id.toString(),
+        name: party!.name,
+        date: party!.date.toISOString(),
+        guestCount: party!.guests, 
+        guestList: party!.guestList ? party.guestList.map((guest: Guest) => ({
+          id: guest!._id.toString(),
+          name: guest!.name,
+          email: guest!.email,
+          status: guest!.status
         })) : [],
         budget: party.budget,
         location: party.location
@@ -89,10 +89,10 @@ async function updateUserStatistics(userId: string, newParty: PartyDocument) {
       {
         $inc: {
           totalParties: 1,
-          totalGuests: newParty.guests,
+          totalGuests: newParty!.guests,
         },
         $set: {
-          lastParty: newParty._id,
+          lastParty: newParty!._id,
         },
       },
       { new: true }

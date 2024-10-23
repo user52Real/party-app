@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const partyId = request.nextUrl.searchParams.get("id");
-    const userId = session.user.id;
+    const userId = session.user!.id;
 
     if (!partyId) {
       return NextResponse.json({ error: "Party ID is missing in the request." }, { status: 400 });
@@ -31,12 +31,12 @@ export async function GET(request: NextRequest) {
     }
 
     const formattedParty = {
-      id: party._id.toString(),
-      name: party.name,
-      date: party.date.toISOString(),
-      guests: party.guests,
-      budget: party.budget,
-      location: party.location || ""
+      id: party!._id.toString(),
+      name: party!.name,
+      date: party!.date.toISOString(),
+      guests: party!.guests,
+      budget: party!.budget,
+      location: party!.location || ""
     };
 
     return NextResponse.json(formattedParty);

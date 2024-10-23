@@ -45,11 +45,11 @@ export async function updateUserStatistics(userId: string, party: PartyDocument)
       throw new Error("User not found");
     }
 
-    user.totalParties = (user.totalParties || 0) + 1;
-    user.totalGuests = (user.totalGuests || 0) + (Array.isArray(party.guests) ? party.guests.length : party.guests || 0);
-    user.totalBudget = (user.totalBudget || 0) + party.budget;
+    user!.totalParties = (user.totalParties || 0) + 1;
+    user!.totalGuests = (user.totalGuests || 0) + (Array.isArray(party.guests) ? party.guests.length : party.guests || 0);
+    user!.totalBudget = (user.totalBudget || 0) + party.budget;
 
-    if (!user.lastPartyDate || new Date(party.date) > new Date(user.lastPartyDate)) {
+    if (!user!.lastPartyDate || new Date(party.date) > new Date(user.lastPartyDate)) {
       user.lastPartyDate = party.date;
     }
 
@@ -86,4 +86,3 @@ export function calculatePartyDuration(startTime: Date, endTime: Date): number {
   return (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60); // Duration in hours
 }
 
-// Add more utility functions as needed

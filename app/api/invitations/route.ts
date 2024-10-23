@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     const { partyId, guestEmail, guestName } = await req.json();
-    const userId = session.user.id;
+    const userId = session.user!.id;
 
     if (!partyId || !guestEmail || !guestName) {
       return NextResponse.json({ error: "Missing required fields: partyId, guestEmail, guestName." }, { status: 400 });
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Party not found or you're not the owner." }, { status: 404 });
     }
 
-    const existingGuest = party.guests.find((guest: Guest) => guest.email === guestEmail);
+    const existingGuest = party!.guests!.find((guest: Guest) => guest.email === guestEmail);
     if (existingGuest) {
       return NextResponse.json({ error: "Guest has already been invited." }, { status: 400 });
     }
@@ -67,7 +67,7 @@ export async function GET(req: Request) {
     }
 
     await connectDB();
-    const userId = session.user.id;
+    const userId = session.user!.id;
     const url = new URL(req.url);
     const partyId = url.searchParams.get('partyId');
 
@@ -85,10 +85,10 @@ export async function GET(req: Request) {
     }
 
     const invitations = party.guests.map((guest: Guest) => ({
-      id: guest._id.toString(),
-      name: guest.name,
-      email: guest.email,
-      status: guest.status
+      id: guest!._id.toString(),
+      name: guest!.name,
+      email: guest!.email,
+      status: guest!.status
     }));
 
     return NextResponse.json(invitations);
